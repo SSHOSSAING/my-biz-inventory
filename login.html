@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  body { background: var(--body-bg, #f1f3f8); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-wrap { width: 100%; max-width: 400px; padding: 16px; }
+  .login-card { background: var(--card-bg, #fff); border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,0.12); overflow: hidden; }
+  .login-header { background: var(--sidebar-bg, #1e2230); color: #fff; padding: 28px 32px 24px; text-align: center; }
+  .login-header .shop-logo-wrap { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 30px; }
+  .login-header .shop-title { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .login-header .shop-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .login-body { padding: 28px 32px 24px; }
+  .role-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+  .role-tab { flex: 1; padding: 9px 6px; border: 1.5px solid #dee2e6; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12.5px; font-weight: 600; color: #6c757d; transition: all 0.15s; background: transparent; }
+  .role-tab.active { border-color: var(--primary, #1a56db); background: var(--primary-light, #e8f0fe); color: var(--primary, #1a56db); }
+  .role-tab i { display: block; font-size: 20px; margin-bottom: 3px; }
+  .pin-display { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #dee2e6; background: transparent; transition: all 0.15s; }
+  .pin-dot.filled { background: var(--primary, #1a56db); border-color: var(--primary, #1a56db); }
+  .pin-dot.error { background: #dc3545; border-color: #dc3545; animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pin-btn { height: 58px; border-radius: 12px; border: 1.5px solid #e5e7eb; background: var(--card-bg, #fff); font-size: 22px; font-weight: 600; color: var(--text-main, #1e2230); cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; gap: 0; user-select: none; }
+  .pin-btn:hover { background: var(--primary-light, #e8f0fe); border-color: var(--primary, #1a56db); }
+  .pin-btn:active { transform: scale(0.94); }
+  .pin-btn.zero { grid-column: 2; }
+  .pin-btn.del { background: #fff0f0; border-color: #fecaca; color: #dc3545; }
+  .pin-btn.del:hover { background: #fee2e2; }
+  .login-error { color: #dc3545; font-size: 13px; text-align: center; min-height: 20px; margin-bottom: 4px; }
+  .login-footer { text-align: center; padding: 14px; border-top: 1px solid var(--card-border, #f0f2f5); font-size: 11px; color: #adb5bd; }
+  [data-theme="dark"] .pin-btn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+  [data-theme="dark"] .pin-btn:hover { background: #1e3a5f; }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="shop-logo-wrap" id="loginLogoWrap">
+        <i class="bi bi-shop"></i>
+      </div>
+      <div class="shop-title" id="loginShopName">Sales & Inventory</div>
+      <div class="shop-sub" id="loginShopAddr"></div>
+    </div>
+    <div class="login-body">
+      <!-- Role selector -->
+      <div class="role-tabs" id="roleTabs">
+        <button class="role-tab active" data-role="owner">
+          <i class="bi bi-person-badge"></i>Owner
+        </button>
+        <button class="role-tab" data-role="manager">
+          <i class="bi bi-person-gear"></i>Manager
+        </button>
+        <button class="role-tab" data-role="salesman">
+          <i class="bi bi-person"></i>Salesman
+        </button>
+      </div>
+
+      <!-- Salesman name selector (shown only for salesman role) -->
+      <div id="salesmanSelectWrap" class="mb-3 d-none">
+        <label class="form-label fw-semibold">Select Your Name</label>
+        <select class="form-select" id="salesmanSelect">
+          <option value="">-- Select --</option>
+        </select>
+      </div>
+
+      <!-- PIN dots -->
+      <div class="pin-display" id="pinDisplay">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <!-- PIN pad -->
+      <div class="pin-pad">
+        <button class="pin-btn" data-digit="1">1</button>
+        <button class="pin-btn" data-digit="2">2</button>
+        <button class="pin-btn" data-digit="3">3</button>
+        <button class="pin-btn" data-digit="4">4</button>
+        <button class="pin-btn" data-digit="5">5</button>
+        <button class="pin-btn" data-digit="6">6</button>
+        <button class="pin-btn" data-digit="7">7</button>
+        <button class="pin-btn" data-digit="8">8</button>
+        <button class="pin-btn" data-digit="9">9</button>
+        <button class="pin-btn zero" data-digit="0">0</button>
+        <button class="pin-btn del" id="pinDel"><i class="bi bi-backspace"></i></button>
+      </div>
+
+      <button class="btn btn-primary w-100 btn-lg" id="loginBtn" style="border-radius:12px;">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </button>
+    </div>
+    <div class="login-footer">
+      Developed by <strong>Sabbir Hossain@QureMap</strong> &copy; <span id="loginYear"></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+const LOGIN = {
+  selectedRole: 'owner',
+  enteredPIN: '',
+  maxLen: 4,
+
+  init() {
+    // Apply theme
+    const theme = DB.getTheme();
+    if (theme) document.body.setAttribute('data-theme', theme);
+
+    // Fill shop info
+    const shop = DB.getShop();
+    document.getElementById('loginShopName').textContent = shop.name || 'Sales & Inventory';
+    document.getElementById('loginShopAddr').textContent = shop.address || '';
+    document.getElementById('loginYear').textContent = new Date().getFullYear();
+
+    if (shop.logo) {
+      const wrap = document.getElementById('loginLogoWrap');
+      wrap.innerHTML = `<img src="${shop.logo}" style="width:56px;height:56px;object-fit:contain;border-radius:12px;">`;
+    }
+
+    // If already logged in and session valid, skip to home
+    if (AUTH.isLoggedIn()) {
+      this.redirect(AUTH.getRole());
+      return;
+    }
+
+    // Populate salesman names
+    this.loadSalesmanNames();
+    this.bindEvents();
+  },
+
+  loadSalesmanNames() {
+    const users    = AUTH.getUsers();
+    const salesmen = users.filter(u => u.role === 'salesman' && u.active);
+    const sel      = document.getElementById('salesmanSelect');
+    if (!sel) return;
+    if (salesmen.length === 0) {
+      sel.innerHTML = '<option value="">-- No salesmen added yet --</option>';
+      sel.disabled  = true;
+      const hint = document.createElement('div');
+      hint.className   = 'form-text text-warning mt-1';
+      hint.textContent = 'Ask the owner to add salesman accounts in Settings.';
+      sel.parentNode.appendChild(hint);
+    } else {
+      sel.disabled  = false;
+      sel.innerHTML = '<option value="">-- Select your name --</option>' +
+        salesmen.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+    }
+  },
+
+  bindEvents() {
+    // Role tabs
+    document.querySelectorAll('.role-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        this.selectedRole = tab.dataset.role;
+        this.enteredPIN = '';
+        this.renderDots();
+        document.getElementById('loginError').textContent = '';
+        // Show salesman selector only for salesman role
+        const wrap = document.getElementById('salesmanSelectWrap');
+        wrap.classList.toggle('d-none', this.selectedRole !== 'salesman');
+      });
+    });
+
+    // PIN pad
+    document.querySelectorAll('[data-digit]').forEach(btn => {
+      btn.addEventListener('click', () => this.pressDigit(btn.dataset.digit));
+    });
+    document.getElementById('pinDel')?.addEventListener('click', () => this.deleteDigit());
+    document.getElementById('loginBtn')?.addEventListener('click', () => this.tryLogin());
+
+    // Keyboard support
+    document.addEventListener('keydown', e => {
+      if (e.key >= '0' && e.key <= '9') this.pressDigit(e.key);
+      else if (e.key === 'Backspace') this.deleteDigit();
+      else if (e.key === 'Enter') this.tryLogin();
+    });
+  },
+
+  pressDigit(d) {
+    if (this.enteredPIN.length >= this.maxLen) return;
+    this.enteredPIN += d;
+    this.renderDots();
+    // Auto-submit when 4 digits entered
+    if (this.enteredPIN.length === this.maxLen) {
+      setTimeout(() => this.tryLogin(), 150);
+    }
+  },
+
+  deleteDigit() {
+    this.enteredPIN = this.enteredPIN.slice(0, -1);
+    this.renderDots();
+  },
+
+  renderDots() {
+    for (let i = 0; i < this.maxLen; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot) {
+        dot.classList.toggle('filled', i < this.enteredPIN.length);
+        dot.classList.remove('error');
+      }
+    }
+  },
+
+  showError(msg) {
+    document.getElementById('loginError').textContent = msg;
+    for (let i = 0; i < this.maxLen; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot) dot.classList.add('error');
+    }
+    setTimeout(() => {
+      this.enteredPIN = '';
+      this.renderDots();
+    }, 600);
+  },
+
+  tryLogin() {
+    if (!this.enteredPIN) { document.getElementById('loginError').textContent = 'Enter your PIN'; return; }
+    if (this.enteredPIN.length < 4) { document.getElementById('loginError').textContent = 'PIN must be 4 digits'; return; }
+
+    const role = this.selectedRole;
+    const pin  = this.enteredPIN;
+
+    // For salesman, also need a name selected
+    let salesmanId = null;
+    if (role === 'salesman') {
+      salesmanId = document.getElementById('salesmanSelect')?.value;
+      if (!salesmanId) {
+        document.getElementById('loginError').textContent = 'Please select your name';
+        return;
+      }
+    }
+
+    const result = AUTH.verifyPIN(role, pin, salesmanId);
+    if (result.ok) {
+      AUTH.startSession(result.user);
+      this.redirect(role);
+    } else {
+      this.showError(result.error || 'Incorrect PIN');
+    }
+  },
+
+  redirect(role) {
+    const dest = {
+      owner:    'index.html',
+      manager:  'index.html',
+      salesman: 'pages/invoice.html',
+    };
+    window.location.href = dest[role] || 'index.html';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => LOGIN.init());
+</script>
+</body>
+</html>

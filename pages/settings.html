@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shop"></i></div>
+      <div class="sidebar-brand-text">Sales & Inventory<br><small>Management System</small></div>
+    </div>
+    <div class="sidebar-shop shop-header"></div>
+    <nav id="sideNav"></nav>
+    <div class="sidebar-footer"><div id="syncStatus"></div></div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+      <span id="topShopName">Sales & Inventory</span>
+      <div class="topbar-actions"><div id="userBadge"></div>
+        <button class="btn btn-sm btn-outline-primary" id="syncBtn" onclick="GOOGLE.syncAll()"><i class="bi bi-cloud-upload me-1"></i>Sync</button>
+        <button class="btn btn-sm btn-outline-secondary" id="langToggle"><i class="bi bi-translate me-1"></i>EN/বাং</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-title"><i class="bi bi-gear"></i> <span data-t="settings">Settings</span></div>
+
+      <div class="row g-4">
+        <!-- Shop Profile -->
+        <div class="col-12 col-lg-6">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-shop me-2"></i>Shop Profile</div>
+            <div class="panel-body">
+              <!-- Logo Upload -->
+              <div class="text-center mb-3">
+                <div id="logoPreviewWrap" class="mx-auto mb-2" style="width:90px;height:90px;border-radius:16px;overflow:hidden;border:2px dashed #dee2e6;display:flex;align-items:center;justify-content:center;background:#f8f9fb;cursor:pointer;">
+                  <img id="logoPreview" src="" style="display:none;width:100%;height:100%;object-fit:contain;">
+                  <i class="bi bi-image fs-2 text-muted" id="logoPlaceholder"></i>
+                </div>
+                <label for="logoUpload" class="btn btn-outline-secondary btn-sm"><i class="bi bi-upload me-1"></i>Upload Logo</label>
+                <input type="file" id="logoUpload" class="d-none" accept="image/*">
+                <button class="btn btn-outline-danger btn-sm ms-1" id="removeLogo"><i class="bi bi-trash"></i></button>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Business Name</label>
+                  <input type="text" class="form-control" id="setShopName" placeholder="My General Shop">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="ownerName">Owner Name</label>
+                  <input type="text" class="form-control" id="setOwnerName">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="mobile">Mobile</label>
+                  <input type="tel" class="form-control" id="setMobile" placeholder="01XXXXXXXXX">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="whatsapp">WhatsApp</label>
+                  <input type="tel" class="form-control" id="setWhatsapp" placeholder="01XXXXXXXXX">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="email">Email</label>
+                  <input type="email" class="form-control" id="setEmail">
+                </div>
+                <div class="col-12">
+                  <label class="form-label" data-t="address">Address</label>
+                  <textarea class="form-control" id="setAddress" rows="2"></textarea>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <button class="btn btn-primary w-100" id="saveProfileBtn">
+                  <i class="bi bi-save me-1"></i><span data-t="saveProfile">Save Profile</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Settings -->
+        <div class="col-12 col-lg-6">
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-sliders me-2"></i>App Settings</div>
+            <div class="panel-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label" data-t="currency">Currency</label>
+                  <select class="form-select" id="setCurrency">
+                    <option value="BDT">BDT (৳)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="INR">INR (₹)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="taxRate">Default Tax Rate (%)</label>
+                  <input type="number" class="form-control" id="setTaxRate" min="0" max="100" step="0.5" value="0">
+                </div>
+                <div class="col-12">
+                  <label class="form-label" data-t="language">Language</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="langOpt" id="langEn" value="en">
+                      <label class="form-check-label" for="langEn">English</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="langOpt" id="langBn" value="bn">
+                      <label class="form-check-label" for="langBn">বাংলা (Bengali)</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Theme / Color Scheme</label>
+                  <div class="d-flex gap-2 align-items-center flex-wrap" id="themePicker">
+                    <span class="theme-swatch" data-theme="default" style="background:linear-gradient(135deg,#1e2230 50%,#1a56db 50%)" title="Default Blue"></span>
+                    <span class="theme-swatch" data-theme="green"   style="background:linear-gradient(135deg,#0d2b1e 50%,#0a7c4e 50%)" title="Forest Green"></span>
+                    <span class="theme-swatch" data-theme="purple"  style="background:linear-gradient(135deg,#1e1535 50%,#6d28d9 50%)" title="Royal Purple"></span>
+                    <span class="theme-swatch" data-theme="orange"  style="background:linear-gradient(135deg,#2c1400 50%,#c2410c 50%)" title="Warm Sunrise"></span>
+                    <span class="theme-swatch" data-theme="teal"    style="background:linear-gradient(135deg,#0c2d38 50%,#0e7490 50%)" title="Ocean Teal"></span>
+                    <span class="theme-swatch" data-theme="dark"    style="background:linear-gradient(135deg,#0f172a 50%,#3b82f6 50%)" title="Dark Mode"></span>
+                    <span class="ms-2 text-muted small" id="themeLabel">Default Blue</span>
+                  </div>
+                  <div class="form-text">Theme is applied instantly across all pages.</div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button class="btn btn-primary w-100" id="saveSettingsBtn">
+                  <i class="bi bi-save me-1"></i>Save Settings
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Sheets Integration -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-google me-2"></i>Google Sheets Integration</div>
+            <div class="panel-body">
+              <div id="googleStatusBanner" class="alert alert-warning d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <div><strong>Not Connected</strong><br><small>Connect your Google account to backup data to Google Sheets</small></div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Google Client ID</label>
+                <input type="text" class="form-control" id="setGoogleClientId" placeholder="Your Google OAuth Client ID">
+                <div class="form-text">Required to enable Google Sheets sync. <a href="https://console.cloud.google.com" target="_blank">Get one here ↗</a></div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Spreadsheet ID <small class="text-muted">(auto-filled after connect)</small></label>
+                <input type="text" class="form-control font-monospace" id="setSpreadsheetId" placeholder="Will be set automatically">
+              </div>
+
+              <div class="d-flex gap-2 flex-wrap mb-2">
+                <button class="btn btn-primary flex-fill" onclick="GOOGLE.login()">
+                  <i class="bi bi-google me-1"></i>Connect Google
+                </button>
+                <button class="btn btn-success flex-fill" onclick="SETTINGS.createSpreadsheet()">
+                  <i class="bi bi-file-earmark-spreadsheet me-1"></i>Create Spreadsheet
+                </button>
+                <button class="btn btn-outline-danger" onclick="GOOGLE.logout()">
+                  <i class="bi bi-x-circle me-1"></i>Disconnect
+                </button>
+              </div>
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-primary flex-fill" onclick="GOOGLE.syncAll()">
+                  <i class="bi bi-cloud-upload me-1"></i>Push to Sheets
+                </button>
+                <button class="btn btn-outline-success flex-fill" onclick="SETTINGS.pullFromSheets()">
+                  <i class="bi bi-cloud-download me-1"></i>Pull from Sheets
+                </button>
+              </div>
+              <div class="alert alert-info py-2 small mt-2 mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Multi-device use:</strong> Push from your main device, then Pull on any other device using the same Google account to get the latest data.
+              </div>
+
+              <div class="mt-3">
+                <div class="d-flex justify-content-between text-muted small">
+                  <span>Last Sync: <strong id="setLastSync">Never</strong></span>
+                  <span>Pending: <strong id="setPendingCount">0</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff / User Management -->
+        <div class="col-12">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-people me-2"></i>Staff & Access Control</div>
+            <div class="panel-body">
+              <div class="row g-3">
+                <!-- Add staff user -->
+                <div class="col-12 col-md-5">
+                  <div class="fw-semibold mb-2">Add Staff Account</div>
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <input type="text" class="form-control" id="newUserName" placeholder="Staff Name *">
+                    </div>
+                    <div class="col-6">
+                      <select class="form-select" id="newUserRole">
+                        <option value="manager">Manager</option>
+                        <option value="salesman">Salesman</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <input type="password" class="form-control" id="newUserPin" placeholder="4-digit PIN *" maxlength="4">
+                    </div>
+                    <div class="col-12">
+                      <button class="btn btn-primary w-100" id="addUserBtn">
+                        <i class="bi bi-person-plus me-1"></i>Add Staff Account
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-3 p-3 rounded" style="background:var(--body-bg,#f8f9fb);font-size:12px;">
+                    <div class="fw-semibold mb-1">Role Permissions:</div>
+                    <div class="mb-1"><span class="badge" style="background:#6d28d9">Owner</span> — All pages, sync, settings, reports, investors</div>
+                    <div class="mb-1"><span class="badge bg-success">Manager</span> — Dashboard, Products, Invoice, Restock</div>
+                    <div><span class="badge bg-primary">Salesman</span> — Invoice only, max 10% discount, no purchase prices</div>
+                  </div>
+                </div>
+
+                <!-- Current users -->
+                <div class="col-12 col-md-7">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-semibold">Active Accounts</div>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="SETTINGS.renderUsers()"><i class="bi bi-arrow-clockwise"></i></button>
+                  </div>
+                  <div id="usersList"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Log -->
+        <div class="col-12">
+          <div class="panel">
+            <div class="panel-header d-flex justify-content-between">
+              <span><i class="bi bi-journal-text me-2"></i>Staff Activity Log</span>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="SETTINGS.renderAuditLog()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="SETTINGS.clearAuditLog()"><i class="bi bi-trash me-1"></i>Clear Log</button>
+              </div>
+            </div>
+            <div class="table-responsive" style="max-height:280px;overflow-y:auto;">
+              <table class="table table-sm table-hover">
+                <thead class="sticky-top" style="background:var(--card-bg,#fff);">
+                  <tr><th>Time</th><th>Staff</th><th>Role</th><th>Action</th><th>Details</th></tr>
+                </thead>
+                <tbody id="auditLogBody">
+                  <tr><td colspan="5" class="text-center text-muted py-3">No activity recorded yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="col-12">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-cloud-arrow-down me-2"></i>Backup & Restore</div>
+            <div class="panel-body">
+              <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                  <h6>Export All Data</h6>
+                  <p class="text-muted small">Download a complete backup of all your data (products, sales, customers, suppliers, settings).</p>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-success" onclick="SETTINGS.exportBackup()">
+                      <i class="bi bi-download me-1"></i>Export JSON Backup
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="APP.exportCSV(DB.getProducts(),'products-backup.csv')">
+                      <i class="bi bi-filetype-csv me-1"></i>Products CSV
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="APP.exportCSV(DB.getSales(),'sales-backup.csv')">
+                      <i class="bi bi-filetype-csv me-1"></i>Sales CSV
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6>Import / Restore</h6>
+                  <p class="text-muted small">Restore data from a previously exported JSON backup file. <strong class="text-danger">This will overwrite existing data.</strong></p>
+                  <div class="d-flex gap-2 align-items-center">
+                    <input type="file" class="form-control" id="restoreFile" accept=".json">
+                    <button class="btn btn-warning" onclick="SETTINGS.importBackup()">
+                      <i class="bi bi-upload me-1"></i>Restore
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+              <div class="row g-3">
+              <div class="col-md-6">
+                  <h6 class="text-danger"><i class="bi bi-shield-lock me-1"></i>Danger Zone</h6>
+                  <p class="text-muted small">Permanently deletes ALL data. Requires owner password.</p>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-danger" onclick="SETTINGS.showClearConfirm()">
+                      <i class="bi bi-trash me-1"></i>Clear All Data
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                      <i class="bi bi-key me-1"></i>Change Password
+                    </button>
+                  </div>
+                  <div class="form-text mt-1">Default password: <code>1234</code></div>
+              </div>
+                <div class="col-md-6">
+                  <h6>Storage Usage</h6>
+                  <div id="storageInfo" class="text-muted small"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+      <footer class="app-footer no-print"></footer>
+    </div>
+</div>
+
+<!-- Danger Zone Modal -->
+<div class="modal fade" id="dangerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-shield-exclamation me-2"></i>Security Check</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger py-2 small">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          <strong>WARNING:</strong> This will permanently delete ALL products, sales, customers, suppliers and settings. This cannot be undone!
+        </div>
+        <label class="form-label fw-semibold">Enter Owner Password to confirm:</label>
+        <input type="password" class="form-control" id="dangerPassword" placeholder="Enter password">
+        <div class="form-text">Default password: <code>1234</code> — change it in Settings.</div>
+        <div id="dangerError" class="text-danger small mt-1 d-none"><i class="bi bi-x-circle me-1"></i>Incorrect password</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="confirmClearBtn"><i class="bi bi-trash me-1"></i>Delete Everything</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-key me-2"></i>Change Owner Password</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label">Current Password</label><input type="password" class="form-control" id="currentPw"></div>
+        <div class="mb-2"><label class="form-label">New Password</label><input type="password" class="form-control" id="newPw"></div>
+        <div class="mb-2"><label class="form-label">Confirm New Password</label><input type="password" class="form-control" id="confirmPw"></div>
+        <div id="pwError" class="text-danger small d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="savePwBtn"><i class="bi bi-save me-1"></i>Save Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/sheet-sync.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+const SETTINGS = {
+  logoData: '',
+
+  init() {
+    APP.currentPage = 'settings';
+    this.loadProfile();
+    this.loadSettings();
+    this.loadGoogleStatus();
+    this.bindEvents();
+    this.showStorageInfo();
+    this.initThemePicker();
+    this.renderUsers();
+    this.renderAuditLog();
+  },
+
+  initThemePicker() {
+    const THEME_NAMES = { default:'Default Blue', green:'Forest Green', purple:'Royal Purple', orange:'Warm Sunrise', teal:'Ocean Teal', dark:'Dark Mode' };
+    const current = DB.getTheme();
+    const swatches = document.querySelectorAll('.theme-swatch');
+    const label = document.getElementById('themeLabel');
+
+    swatches.forEach(sw => {
+      if (sw.dataset.theme === current) { sw.classList.add('active'); if (label) label.textContent = THEME_NAMES[current] || current; }
+      sw.addEventListener('click', () => {
+        const theme = sw.dataset.theme;
+        DB.setTheme(theme);
+        APP.applyTheme(theme);
+        swatches.forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+        if (label) label.textContent = THEME_NAMES[theme] || theme;
+        APP.showToast(`Theme: ${THEME_NAMES[theme]}`, 'success');
+      });
+    });
+  },
+
+  loadProfile() {
+    const shop = DB.getShop();
+    document.getElementById('setShopName').value = shop.name || '';
+    document.getElementById('setOwnerName').value = shop.owner || '';
+    document.getElementById('setMobile').value = shop.mobile || '';
+    document.getElementById('setWhatsapp').value = shop.whatsapp || '';
+    document.getElementById('setEmail').value = shop.email || '';
+    document.getElementById('setAddress').value = shop.address || '';
+    if (shop.logo) {
+      this.logoData = shop.logo;
+      document.getElementById('logoPreview').src = shop.logo;
+      document.getElementById('logoPreview').style.display = 'block';
+      document.getElementById('logoPlaceholder').style.display = 'none';
+    }
+  },
+
+  loadSettings() {
+    const s = DB.getSettings();
+    document.getElementById('setCurrency').value = s.currency || 'BDT';
+    document.getElementById('setTaxRate').value = s.taxRate || 0;
+    const lang = DB.getLang();
+    document.getElementById('langEn').checked = lang === 'en';
+    document.getElementById('langBn').checked = lang === 'bn';
+    const sid = DB.getSpreadsheetId();
+    if (sid) document.getElementById('setSpreadsheetId').value = sid;
+  },
+
+  loadGoogleStatus() {
+    const banner = document.getElementById('googleStatusBanner');
+    const lastSync = DB.getLastSync();
+    const pending = DB.getPendingSync().length;
+    document.getElementById('setLastSync').textContent = lastSync ? APP.fmtDate(lastSync) : 'Never';
+    document.getElementById('setPendingCount').textContent = pending;
+
+    if (GOOGLE.isSignedIn && GOOGLE.isSignedIn()) {
+      banner.className = 'alert alert-success d-flex align-items-center gap-2';
+      banner.innerHTML = `<i class="bi bi-check-circle-fill"></i><div><strong>Connected to Google</strong><br><small>Your data syncs automatically when online.</small></div>`;
+    }
+  },
+
+  bindEvents() {
+    document.getElementById('saveProfileBtn')?.addEventListener('click', () => this.saveProfile());
+    document.getElementById('saveSettingsBtn')?.addEventListener('click', () => this.saveSettings());
+
+    document.getElementById('logoUpload')?.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 500000) { APP.showToast('Logo should be under 500KB', 'warning'); return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        this.logoData = ev.target.result;
+        document.getElementById('logoPreview').src = ev.target.result;
+        document.getElementById('logoPreview').style.display = 'block';
+        document.getElementById('logoPlaceholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('removeLogo')?.addEventListener('click', () => {
+      this.logoData = '';
+      document.getElementById('logoPreview').src = '';
+      document.getElementById('logoPreview').style.display = 'none';
+      document.getElementById('logoPlaceholder').style.display = '';
+      document.getElementById('logoUpload').value = '';
+    });
+
+    // Danger zone password
+    document.getElementById('confirmClearBtn')?.addEventListener('click', () => {
+      const pw = document.getElementById('dangerPassword')?.value;
+      const storedPw = localStorage.getItem('sis_owner_password') || '1234';
+      if (pw !== storedPw) {
+        document.getElementById('dangerError').classList.remove('d-none');
+        document.getElementById('dangerPassword').focus();
+        return;
+      }
+      bootstrap.Modal.getInstance(document.getElementById('dangerModal'))?.hide();
+      SETTINGS.clearAll();
+    });
+
+    // Change password / PIN
+    document.getElementById('savePwBtn')?.addEventListener('click', () => {
+      const current = document.getElementById('currentPw')?.value;
+      const nw      = document.getElementById('newPw')?.value;
+      const confirm = document.getElementById('confirmPw')?.value;
+      const errEl   = document.getElementById('pwError');
+      errEl.classList.add('d-none');
+
+      if (!nw || nw.length < 4) {
+        errEl.textContent = 'New PIN must be at least 4 digits';
+        errEl.classList.remove('d-none'); return;
+      }
+      if (nw !== confirm) {
+        errEl.textContent = 'PINs do not match';
+        errEl.classList.remove('d-none'); return;
+      }
+
+      const targetId = SETTINGS._changePINTarget;
+      if (targetId) {
+        // Changing a specific staff user's PIN — owner must confirm with their own PIN
+        const ownerVerify = AUTH.verifyPIN('owner', current);
+        if (!ownerVerify.ok) {
+          errEl.textContent = 'Enter YOUR owner PIN to authorise this change';
+          errEl.classList.remove('d-none'); return;
+        }
+        const result = AUTH.updateUserPIN(targetId, nw);
+        if (!result.ok) { errEl.textContent = result.error; errEl.classList.remove('d-none'); return; }
+        SETTINGS._changePINTarget = null;
+      } else {
+        // Changing owner's own PIN
+        const stored = localStorage.getItem('sis_owner_password') || '1234';
+        if (current !== stored) {
+          errEl.textContent = 'Current password is incorrect';
+          errEl.classList.remove('d-none'); return;
+        }
+        localStorage.setItem('sis_owner_password', nw);
+        // Also update owner user in AUTH
+        const ownerUser = AUTH.getUsers().find(u => u.role === 'owner');
+        if (ownerUser) AUTH.updateUserPIN(ownerUser.id, nw);
+      }
+
+      bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'))?.hide();
+      APP.showToast('PIN changed successfully!', 'success');
+      AUTH.log('pin_changed', { userId: targetId || 'owner' });
+      SETTINGS.renderUsers();
+    });
+
+    // Google auth events
+    document.addEventListener('google-auth-success', () => this.loadGoogleStatus());
+  },
+
+  saveProfile() {
+    const shop = {
+      name: document.getElementById('setShopName').value.trim(),
+      owner: document.getElementById('setOwnerName').value.trim(),
+      mobile: document.getElementById('setMobile').value.trim(),
+      whatsapp: document.getElementById('setWhatsapp').value.trim(),
+      email: document.getElementById('setEmail').value.trim(),
+      address: document.getElementById('setAddress').value.trim(),
+      logo: this.logoData,
+    };
+    DB.saveShop(shop);
+    APP.renderHeader();
+    APP.showToast(t('profileSaved'), 'success');
+  },
+
+  saveSettings() {
+    const lang = document.querySelector('input[name="langOpt"]:checked')?.value || 'en';
+    DB.setLang(lang);
+    const settings = {
+      currency: document.getElementById('setCurrency').value,
+      taxRate: parseFloat(document.getElementById('setTaxRate').value || 0),
+      lang,
+    };
+    DB.saveSettings(settings);
+    const sid = document.getElementById('setSpreadsheetId').value.trim();
+    if (sid) DB.saveSpreadsheetId(sid);
+
+    // Update Google client ID if provided
+    const clientId = document.getElementById('setGoogleClientId').value.trim();
+    if (clientId) {
+      GOOGLE.CLIENT_ID = clientId;
+      localStorage.setItem('sis_google_client_id', clientId);
+    }
+
+    APP.showToast('Settings saved!', 'success');
+    if (lang !== DB.getLang()) setTimeout(() => location.reload(), 800);
+  },
+
+  async createSpreadsheet() {
+    if (!GOOGLE.isSignedIn || !GOOGLE.isSignedIn()) {
+      APP.showToast('Please connect Google first', 'warning');
+      return;
+    }
+    const shop = DB.getShop();
+    try {
+      APP.showToast('Creating spreadsheet...', 'info');
+      const id = await GOOGLE.createSpreadsheet(shop.name);
+      document.getElementById('setSpreadsheetId').value = id;
+      APP.showToast('Spreadsheet created successfully!', 'success');
+    } catch (e) {
+      APP.showToast('Error: ' + e.message, 'error');
+    }
+  },
+
+  async pullFromSheets() {
+    const result = await GOOGLE.pullAll();
+    if (result) {
+      this.loadProfile();
+      this.loadSettings();
+      this.showStorageInfo();
+    }
+  },
+
+  exportBackup() {
+    const data = DB.exportAll();
+    const filename = `sis-backup-${new Date().toISOString().split('T')[0]}.json`;
+    APP.exportJSON(data, filename);
+    APP.showToast('Backup exported!', 'success');
+  },
+
+  importBackup() {
+    const file = document.getElementById('restoreFile')?.files[0];
+    if (!file) { APP.showToast('Please select a backup file', 'warning'); return; }
+    APP.showConfirm('This will overwrite ALL existing data. Are you sure?', () => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          const result = DB.importAll(data);
+          if (!result.ok) { APP.showToast('Import failed: ' + result.error, 'error'); return; }
+          APP.showToast('Backup restored successfully!', 'success');
+          APP.renderHeader();
+          this.loadProfile();
+          this.loadSettings();
+          this.showStorageInfo();
+        } catch (e) {
+          APP.showToast('Invalid backup file — could not parse JSON', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+  },
+
+  showClearConfirm() {
+    document.getElementById('dangerPassword').value = '';
+    document.getElementById('dangerError').classList.add('d-none');
+    new bootstrap.Modal(document.getElementById('dangerModal')).show();
+  },
+
+  clearAll() {
+    Object.values(DB.KEYS).forEach(k => localStorage.removeItem(k));
+    APP.showToast('All data cleared', 'info');
+    setTimeout(() => location.reload(), 1000);
+  },
+
+  showStorageInfo() {
+    const el = document.getElementById('storageInfo');
+    if (!el) return;
+    let total = 0;
+    Object.keys(localStorage).forEach(k => { total += (localStorage.getItem(k) || '').length; });
+    const kb  = (total / 1024).toFixed(1);
+    const pct = ((total / (5 * 1024 * 1024)) * 100).toFixed(1);
+    el.innerHTML = `<div class="mb-1">Used: <strong>${kb} KB</strong> of ~5 MB (${pct}%)</div>
+      <div class="progress" style="height:8px;"><div class="progress-bar ${parseFloat(pct) > 80 ? 'bg-danger' : 'bg-success'}" style="width:${Math.min(parseFloat(pct), 100)}%"></div></div>
+      <div class="mt-1 text-muted">Products: ${DB.getProducts().length} &bull; Sales: ${DB.getSales().length} &bull; Stock: ${DB.getStockEntries().length}</div>`;
+  },
+
+  // ── Staff Management ─────────────────────────────────────────
+  _changePINTarget: null,
+  _addUserHandler: null,
+
+  renderUsers() {
+    const users = AUTH.getUsers().filter(u => u.active);
+    const el = document.getElementById('usersList');
+    if (!el) return;
+    const RC = { owner: '#6d28d9', manager: '#0a7c4e', salesman: '#1a56db' };
+    el.innerHTML = users.map(u => `
+      <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+        <div style="width:34px;height:34px;border-radius:8px;background:${RC[u.role]||'#999'};
+          display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0;">
+          ${(u.name||'?')[0].toUpperCase()}
+        </div>
+        <div class="flex-fill min-w-0">
+          <div class="fw-semibold">${u.name}</div>
+          <span class="badge" style="background:${RC[u.role]||'#999'};font-size:10px;">${u.role}</span>
+        </div>
+        <div class="d-flex gap-1 flex-shrink-0">
+          <button class="btn btn-sm btn-outline-secondary" style="padding:3px 7px;font-size:11px;"
+            onclick="SETTINGS.showChangePIN('${u.id}','${u.name}')">
+            <i class="bi bi-key"></i>
+          </button>
+          ${u.role !== 'owner' ? `<button class="btn btn-sm btn-outline-danger" style="padding:3px 7px;font-size:11px;"
+            onclick="SETTINGS.removeUser('${u.id}','${u.name}')">
+            <i class="bi bi-person-dash"></i>
+          </button>` : ''}
+        </div>
+      </div>`).join('') || '<div class="text-muted small py-2">No staff accounts yet</div>';
+
+    // Re-bind add user button
+    const addBtn = document.getElementById('addUserBtn');
+    if (addBtn) {
+      const handler = () => {
+        const name = document.getElementById('newUserName')?.value.trim();
+        const role = document.getElementById('newUserRole')?.value;
+        const pin  = document.getElementById('newUserPin')?.value.trim();
+        if (!name) { APP.showToast('Name is required', 'warning'); return; }
+        if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+          APP.showToast('PIN must be exactly 4 digits', 'warning'); return;
+        }
+        const result = AUTH.addUser(name, role, pin);
+        if (!result.ok) { APP.showToast(result.error, 'warning'); return; }
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserPin').value  = '';
+        APP.showToast(`${name} (${role}) added!`, 'success');
+        AUTH.log('user_added', { name, role });
+        this.renderUsers();
+      };
+      addBtn.replaceWith(addBtn.cloneNode(true)); // remove old listeners
+      document.getElementById('addUserBtn')?.addEventListener('click', handler);
+    }
+  },
+
+  showChangePIN(userId, name) {
+    this._changePINTarget = userId;
+    document.getElementById('currentPw').value  = '';
+    document.getElementById('newPw').value       = '';
+    document.getElementById('confirmPw').value   = '';
+    document.getElementById('pwError').classList.add('d-none');
+    const title = document.querySelector('#changePasswordModal .modal-title');
+    if (title) title.textContent = `Change PIN — ${name}`;
+    new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+  },
+
+  removeUser(userId, name) {
+    APP.showConfirm(`Remove "${name}"? They will no longer be able to log in.`, () => {
+      const result = AUTH.deactivateUser(userId);
+      if (result && result.ok === false) { APP.showToast(result.error, 'warning'); return; }
+      AUTH.log('user_removed', { name });
+      APP.showToast(`${name} removed`, 'info');
+      this.renderUsers();
+    });
+  },
+
+  // ── Audit Log ────────────────────────────────────────────────
+  renderAuditLog() {
+    const log   = AUTH.getAuditLog(100);
+    const tbody = document.getElementById('auditLogBody');
+    if (!tbody) return;
+    const ACTION_LABELS = {
+      sale_posted:   { label: '💰 Sale Posted',   cls: 'text-success' },
+      stock_posted:  { label: '📦 Stock Added',   cls: 'text-primary' },
+      expense_added: { label: '💸 Expense Added', cls: 'text-danger'  },
+      user_added:    { label: '👤 User Added',    cls: 'text-warning' },
+      user_removed:  { label: '🗑️ User Removed', cls: 'text-danger'  },
+    };
+    if (!log.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No activity recorded yet</td></tr>';
+      return;
+    }
+    const RC = { owner: '#6d28d9', manager: '#0a7c4e', salesman: '#1a56db' };
+    tbody.innerHTML = log.map(entry => {
+      const cfg = ACTION_LABELS[entry.action] || { label: entry.action, cls: '' };
+      const d   = new Date(entry.timestamp);
+      const ts  = `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+      const det = typeof entry.details === 'object'
+        ? Object.entries(entry.details).map(([k,v]) => `${k}: ${v}`).join(', ')
+        : (entry.details || '');
+      return `<tr>
+        <td style="font-size:11px;white-space:nowrap;">${ts}</td>
+        <td style="font-weight:600;color:${RC[entry.userRole]||'#666'};font-size:12px;">${entry.userName}</td>
+        <td><span class="badge" style="background:${RC[entry.userRole]||'#999'};font-size:10px;">${entry.userRole}</span></td>
+        <td class="${cfg.cls}" style="font-size:12px;">${cfg.label}</td>
+        <td style="font-size:11px;color:#6c757d;">${det}</td>
+      </tr>`;
+    }).join('');
+  },
+
+  clearAuditLog() {
+    APP.showConfirm('Clear the entire activity log? This cannot be undone.', () => {
+      AUTH.clearAuditLog();
+      APP.showToast('Activity log cleared', 'info');
+      this.renderAuditLog();
+    });
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Auth guard + user badge
+    if (!AUTH.guard('settings')) return;
+    AUTH.renderUserBadge();
+    AUTH.applyRestrictions();
+
+  document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  });
+  document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  });
+  SETTINGS.init();
+});
+</script>
+</body>
+</html>

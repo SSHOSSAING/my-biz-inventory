@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shop"></i></div>
+      <div class="sidebar-brand-text">Sales & Inventory<br><small>Management System</small></div>
+    </div>
+    <div class="sidebar-shop shop-header"></div>
+    <nav id="sideNav"></nav>
+    <div class="sidebar-footer">
+      <div id="syncStatus"></div>
+      <div class="mt-1">v1.0 &bull; Offline Ready</div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+      <span id="topShopName">Sales & Inventory</span>
+      <div class="topbar-actions"><div id="userBadge"></div>
+        <button class="btn btn-sm btn-outline-primary no-print" id="syncBtn" onclick="GOOGLE.syncAll()"><i class="bi bi-cloud-upload me-1"></i>Sync</button>
+        <button class="btn btn-sm btn-outline-secondary no-print" id="langToggle"><i class="bi bi-translate me-1"></i>EN/বাং</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-title no-print"><i class="bi bi-receipt"></i> <span data-t="invoice">Invoice</span></div>
+
+      <div class="row g-3">
+        <!-- LEFT: Invoice Form -->
+        <div class="col-12 col-xl-7">
+          <!-- Header Info -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-info-circle me-2"></i>Invoice Details</div>
+            <div class="panel-body">
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label" data-t="invoiceNo">Invoice No</label>
+                  <input type="text" class="form-control" id="invNo" readonly>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" data-t="date">Date</label>
+                  <input type="date" class="form-control" id="invDate">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" data-t="customer">Customer</label>
+                  <select class="form-select" id="invCustomerSel"></select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Customer Name</label>
+                  <input type="text" class="form-control" id="invCustomerName" data-tp="customerName">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" data-t="mobile">Mobile</label>
+                  <input type="tel" class="form-control" id="invMobile" placeholder="01XXXXXXXXX">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Item -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-plus-circle me-2"></i>Add Product</div>
+            <div class="panel-body">
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                  <label class="form-label" data-t="product">Product</label>
+                  <select class="form-select" id="itemProductSel"></select>
+                </div>
+                <div class="col-4 col-md-2">
+                  <label class="form-label" data-t="quantity">Qty</label>
+                  <input type="number" class="form-control" id="itemQty" value="1" min="1">
+                </div>
+                <div class="col-4 col-md-2">
+                  <label class="form-label" data-t="price">Price</label>
+                  <input type="number" class="form-control" id="itemPrice" placeholder="0">
+                </div>
+                <div class="col-4 col-md-2" id="itemDiscountWrap">
+                  <label class="form-label" data-t="discount">Disc.</label>
+                  <input type="number" class="form-control" id="itemDiscount" placeholder="0" value="0">
+                </div>
+                <div class="col-6 col-md-1">
+                  <label class="form-label">Total</label>
+                  <input type="text" class="form-control bg-light" id="itemTotal" readonly>
+                </div>
+                <div class="col-6 col-md-auto">
+                  <button class="btn btn-success w-100" id="addItemBtn"><i class="bi bi-plus-lg me-1"></i>Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-list-ul me-2"></i>Invoice Items</div>
+            <div class="table-responsive">
+              <table class="table">
+                <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Disc</th><th>Total</th><th></th></tr></thead>
+                <tbody id="invItemsBody">
+                  <tr><td colspan="6" class="text-center text-muted py-3">No items added yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Totals & Payment -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-calculator me-2"></i>Payment</div>
+            <div class="panel-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="invoice-totals">
+                    <div class="invoice-total-row"><span>Subtotal:</span><strong id="invSubtotal">BDT 0.00</strong></div>
+                    <div class="row g-1 my-2">
+                      <div class="col-6">
+                        <label class="form-label small" data-t="discount">Discount (BDT)</label>
+                        <input type="number" class="form-control form-control-sm" id="invDiscount" value="0" min="0">
+                        <div class="form-text" id="discountLimitHint"></div>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small" data-t="tax">Tax (%)</label>
+                        <input type="number" class="form-control form-control-sm" id="invTax" value="0" min="0">
+                      </div>
+                    </div>
+                    <div class="invoice-total-row"><span>Tax Amount:</span><span id="invTaxAmt">BDT 0.00</span></div>
+                    <div class="invoice-total-row grand"><span data-t="grandTotal">Grand Total:</span><strong id="invGrandTotal">BDT 0.00</strong></div>
+                    <input type="hidden" id="invGrandInput" value="0">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <!-- Payment Method -->
+                  <label class="form-label" data-t="paymentMethod">Payment Method</label>
+                  <div class="d-flex gap-1 mb-3">
+                    <div class="pay-method-btn"><input type="radio" name="payMethod" id="pm_cash" value="cash" checked><label for="pm_cash"><i class="bi bi-cash"></i><br>Cash</label></div>
+                    <div class="pay-method-btn"><input type="radio" name="payMethod" id="pm_bkash" value="bkash"><label for="pm_bkash">💳<br>bKash</label></div>
+                    <div class="pay-method-btn"><input type="radio" name="payMethod" id="pm_nagad" value="nagad"><label for="pm_nagad">💳<br>Nagad</label></div>
+                    <div class="pay-method-btn"><input type="radio" name="payMethod" id="pm_rocket" value="rocket"><label for="pm_rocket">🚀<br>Rocket</label></div>
+                    <div class="pay-method-btn"><input type="radio" name="payMethod" id="pm_card" value="card"><label for="pm_card"><i class="bi bi-credit-card"></i><br>Card</label></div>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label" data-t="paidAmount">Paid</label>
+                      <input type="number" class="form-control" id="invPaid" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label" data-t="dueAmount">Due</label>
+                      <input type="text" class="form-control bg-light text-danger fw-bold" id="invDue" readonly>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <label class="form-label" data-t="notes">Notes</label>
+                    <textarea class="form-control" id="invNotes" rows="2"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 flex-wrap no-print">
+            <button class="btn btn-outline-secondary" id="saveDraftBtn"><i class="bi bi-cloud me-1"></i><span data-t="saveDraft">Save Draft</span></button>
+            <button class="btn btn-success btn-lg flex-fill" id="postSaleBtn"><i class="bi bi-check-circle me-1"></i><span data-t="postSale">Post Sale</span></button>
+            <button class="btn btn-outline-primary" id="printInvBtn"><i class="bi bi-printer me-1"></i><span data-t="printInvoice">Print</span></button>
+            <button class="btn btn-outline-danger" id="downloadPDFBtn"><i class="bi bi-file-pdf me-1"></i>PDF</button>
+            <button class="btn btn-outline-success" id="whatsappBtn"><i class="bi bi-whatsapp me-1"></i>WhatsApp</button>
+            <button class="btn btn-secondary" id="newInvBtn"><i class="bi bi-plus me-1"></i><span data-t="newInvoice">New</span></button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Invoice Preview -->
+        <div class="col-12 col-xl-5">
+          <div class="panel sticky-top" style="top:70px;" id="invoiceResult" style="display:none;">
+            <div class="panel-header d-flex justify-content-between">
+              <span><i class="bi bi-eye me-2"></i>Invoice Preview</span>
+              <button class="btn btn-sm btn-primary" onclick="INVOICE.printInvoice()"><i class="bi bi-printer me-1"></i>Print</button>
+            </div>
+            <div class="panel-body p-2" id="invoicePrintArea">
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-receipt fs-1 d-block mb-2 opacity-25"></i>
+                Post a sale to see the invoice preview
+              </div>
+            </div>
+          </div>
+          <div class="panel" id="invoiceResult">
+            <div class="panel-header d-flex justify-content-between">
+              <span><i class="bi bi-eye me-2"></i>Invoice Preview</span>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-primary" onclick="INVOICE.printInvoice()"><i class="bi bi-printer"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="INVOICE.downloadPDF()"><i class="bi bi-file-pdf"></i></button>
+                <button class="btn btn-sm btn-success" onclick="INVOICE.sendWhatsApp()"><i class="bi bi-whatsapp"></i></button>
+              </div>
+            </div>
+            <div class="panel-body p-2" id="invoicePrintArea">
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-receipt fs-1 d-block mb-2 opacity-25"></i>
+                <small>Post a sale to see the invoice here</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+      <footer class="app-footer no-print"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/sheet-sync.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/invoice.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Auth guard + user badge
+    if (!AUTH.guard('invoice')) return;
+    AUTH.renderUserBadge();
+    AUTH.applyRestrictions();
+
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    });
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+    });
+    INVOICE.init();
+  });
+</script>
+</body>
+</html>
