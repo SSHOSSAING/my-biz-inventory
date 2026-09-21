@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restock | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shop"></i></div>
+      <div class="sidebar-brand-text">Sales & Inventory<br><small>Management System</small></div>
+    </div>
+    <div class="sidebar-shop shop-header"></div>
+    <nav id="sideNav"></nav>
+    <div class="sidebar-footer"><div id="syncStatus"></div></div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+      <span id="topShopName">Sales & Inventory</span>
+      <div class="topbar-actions"><div id="userBadge"></div>
+        <button class="btn btn-sm btn-outline-primary" id="syncBtn" onclick="GOOGLE.syncAll()"><i class="bi bi-cloud-upload me-1"></i>Sync</button>
+        <button class="btn btn-sm btn-outline-secondary" id="langToggle"><i class="bi bi-translate me-1"></i>EN/বাং</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-title"><i class="bi bi-arrow-repeat"></i> <span data-t="restock">Restock</span></div>
+
+      <div class="row g-3">
+        <!-- Restock Form -->
+        <div class="col-12 col-lg-5">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-plus-circle me-2"></i>Add Stock Entry</div>
+            <div class="panel-body">
+              <div class="mb-3">
+                <label class="form-label" data-t="date">Date</label>
+                <input type="date" class="form-control" id="rstDate">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" data-t="supplier">Supplier</label>
+                <div class="input-group">
+                  <select class="form-select" id="rstSupplier">
+                    <option value="">-- Select Supplier --</option>
+                  </select>
+                  <button class="btn btn-outline-secondary" type="button" id="manageSupBtn" title="Add / Manage Suppliers">
+                    <i class="bi bi-person-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" data-t="product">Product <span class="text-danger">*</span></label>
+                <select class="form-select" id="rstProduct">
+                  <option value="">-- Select Product --</option>
+                </select>
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label" data-t="quantity">Quantity <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="rstQty" min="1" value="1">
+                </div>
+                <div class="col-6">
+                  <label class="form-label" data-t="purchasePrice">Purchase Price</label>
+                  <div class="input-group">
+                    <span class="input-group-text">৳</span>
+                    <input type="number" class="form-control" id="rstPrice" min="0" step="0.01">
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" data-t="totalCost">Total Cost</label>
+                <div class="input-group">
+                  <span class="input-group-text">৳</span>
+                  <input type="text" class="form-control bg-light fw-bold" id="rstTotal" readonly>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" data-t="notes">Notes</label>
+                <textarea class="form-control" id="rstNotes" rows="2"></textarea>
+              </div>
+
+              <!-- Low Stock Alert -->
+              <div id="lowStockAlert" class="alert alert-warning d-none">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Low Stock!</strong> Current stock: <span id="alertCurrentStock"></span>
+              </div>
+
+              <div class="d-grid">
+                <button class="btn btn-success btn-lg" id="postStockBtn">
+                  <i class="bi bi-check-circle me-2"></i><span data-t="postStock">Post Stock</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock History -->
+        <div class="col-12 col-lg-7">
+          <div class="panel">
+            <div class="panel-header">
+              <span><i class="bi bi-clock-history me-2"></i>Stock History</span>
+              <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" id="rstSearch" placeholder="Search...">
+                <button class="btn btn-sm btn-outline-secondary" onclick="APP.exportCSV(DB.getStockEntries(),'stock.csv')"><i class="bi bi-filetype-csv"></i></button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr><th>Date</th><th>Product</th><th>Supplier</th><th>Qty</th><th>Price</th><th>Total</th><th>Status</th></tr>
+                </thead>
+                <tbody id="stockHistoryBody">
+                  <tr><td colspan="7" class="text-center text-muted py-3">No stock entries yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-body pt-0 d-flex justify-content-end">
+              <div id="stockPagination"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Low Stock Products -->
+        <div class="col-12">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Products Needing Restock</div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead><tr><th>Product</th><th>Category</th><th>Current Stock</th><th>Min. Level</th><th>Shortage</th><th>Action</th></tr></thead>
+                <tbody id="needRestockBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+      <footer class="app-footer no-print"></footer>
+    </div>
+</div>
+
+<!-- Supplier Manager Modal -->
+<div class="modal fade" id="supManagerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-truck me-2"></i>Manage Suppliers</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Quick add form -->
+        <div class="card mb-3" style="border:1.5px solid var(--primary,#1a56db);border-radius:10px;">
+          <div class="card-body py-3">
+            <div class="fw-semibold mb-2 text-primary"><i class="bi bi-plus-circle me-1"></i>Add New Supplier</div>
+            <div class="row g-2">
+              <div class="col-12">
+                <input type="text" class="form-control" id="newSupName" placeholder="Supplier Name *" maxlength="80">
+              </div>
+              <div class="col-md-6">
+                <input type="tel" class="form-control" id="newSupMobile" placeholder="Mobile (01XXXXXXXXX)">
+              </div>
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="newSupArea" placeholder="Area / City">
+              </div>
+              <div class="col-12">
+                <input type="text" class="form-control" id="newSupNotes" placeholder="Notes (products they supply, etc.)">
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary w-100" id="addSupplierQuickBtn">
+                  <i class="bi bi-plus-lg me-1"></i>Add Supplier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing suppliers list -->
+        <div class="fw-semibold mb-2">Existing Suppliers</div>
+        <div id="supManagerList" style="max-height:280px;overflow-y:auto;"></div>
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Supplier Modal -->
+<div class="modal fade" id="editSupModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2"><h6 class="modal-title">Edit Supplier</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="editSupId">
+        <div class="mb-2"><label class="form-label">Name *</label><input type="text" class="form-control" id="editSupName"></div>
+        <div class="mb-2"><label class="form-label">Mobile</label><input type="tel" class="form-control" id="editSupMobile"></div>
+        <div class="mb-2"><label class="form-label">Area</label><input type="text" class="form-control" id="editSupArea"></div>
+        <div class="mb-2"><label class="form-label">Notes</label><input type="text" class="form-control" id="editSupNotes"></div>
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="saveEditSupBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/sheet-sync.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+const RESTOCK = {
+  page: 1,
+  search: '',
+
+  init() {
+    APP.currentPage = 'restock';
+    // Set today
+    document.getElementById('rstDate').value = new Date().toISOString().split('T')[0];
+    this.loadSuppliers();
+    this.loadProducts();
+    this.render();
+    this.renderNeedRestock();
+    this.bindEvents();
+  },
+
+  loadSuppliers() {
+    const sel = document.getElementById('rstSupplier');
+    const suppliers = DB.getSuppliers();
+    sel.innerHTML = `<option value="">-- Select Supplier --</option>` +
+      suppliers.map(s => `<option value="${s.id}" data-name="${s.name}">${s.name}</option>`).join('');
+  },
+
+  loadProducts() {
+    const sel = document.getElementById('rstProduct');
+    const products = DB.getProducts().filter(p => p.status === 'active');
+    sel.innerHTML = `<option value="">-- Select Product --</option>` +
+      products.map(p => `<option value="${p.id}" data-name="${p.name}" data-price="${p.purchasePrice}" data-stock="${p.currentStock}">${p.name} (Stock: ${p.currentStock} ${p.unit})</option>`).join('');
+
+    sel.addEventListener('change', () => {
+      const opt = sel.selectedOptions[0];
+      if (opt.value) {
+        document.getElementById('rstPrice').value = opt.dataset.price || '';
+        const stock = parseInt(opt.dataset.stock || 0);
+        const product = DB.getProduct(opt.value);
+        if (product && stock <= product.reorderLevel) {
+          document.getElementById('alertCurrentStock').textContent = stock + ' ' + (product.unit || '');
+          document.getElementById('lowStockAlert').classList.remove('d-none');
+        } else {
+          document.getElementById('lowStockAlert').classList.add('d-none');
+        }
+        this.calcTotal();
+      }
+    });
+  },
+
+  calcTotal() {
+    const qty = parseFloat(document.getElementById('rstQty').value || 0);
+    const price = parseFloat(document.getElementById('rstPrice').value || 0);
+    document.getElementById('rstTotal').value = (qty * price).toFixed(2);
+  },
+
+  bindEvents() {
+    ['rstQty','rstPrice'].forEach(id => document.getElementById(id)?.addEventListener('input', () => this.calcTotal()));
+    document.getElementById('postStockBtn')?.addEventListener('click', () => this.saveEntry('posted'));
+    document.getElementById('rstSearch')?.addEventListener('input', e => { this.search = e.target.value.toLowerCase(); this.page = 1; this.render(); });
+
+    // Supplier manager
+    document.getElementById('manageSupBtn')?.addEventListener('click', () => this.openSupManager());
+
+    document.getElementById('addSupplierQuickBtn')?.addEventListener('click', () => {
+      const name = document.getElementById('newSupName')?.value.trim();
+      if (!name) { APP.showToast('Supplier name is required', 'warning'); return; }
+      if (DB.getSuppliers().some(s => s.name.toLowerCase() === name.toLowerCase())) {
+        APP.showToast('Supplier already exists', 'warning'); return;
+      }
+      DB.addSupplier({
+        name,
+        mobile:  document.getElementById('newSupMobile')?.value.trim() || '',
+        address: document.getElementById('newSupArea')?.value.trim()   || '',
+        email:   '',
+        notes:   document.getElementById('newSupNotes')?.value.trim()  || '',
+      });
+      ['newSupName','newSupMobile','newSupArea','newSupNotes'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      APP.showToast(`Supplier "${name}" added!`, 'success');
+      this.renderSupManagerList();
+      this.loadSuppliers();
+    });
+
+    document.getElementById('newSupName')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('addSupplierQuickBtn')?.click();
+    });
+
+    document.getElementById('saveEditSupBtn')?.addEventListener('click', () => {
+      const id   = document.getElementById('editSupId')?.value;
+      const name = document.getElementById('editSupName')?.value.trim();
+      if (!id || !name) return;
+      DB.updateSupplier(id, {
+        name,
+        mobile:  document.getElementById('editSupMobile')?.value.trim() || '',
+        address: document.getElementById('editSupArea')?.value.trim()   || '',
+        notes:   document.getElementById('editSupNotes')?.value.trim()  || '',
+      });
+      bootstrap.Modal.getInstance(document.getElementById('editSupModal'))?.hide();
+      APP.showToast('Supplier updated!', 'success');
+      this.renderSupManagerList();
+      this.loadSuppliers();
+    });
+  },
+
+  openSupManager() {
+    this.renderSupManagerList();
+    new bootstrap.Modal(document.getElementById('supManagerModal')).show();
+  },
+
+  renderSupManagerList() {
+    const suppliers = DB.getSuppliers();
+    const el = document.getElementById('supManagerList');
+    if (!el) return;
+    if (!suppliers.length) {
+      el.innerHTML = `<div class="text-center text-muted py-3">No suppliers yet — add one above</div>`;
+      return;
+    }
+    el.innerHTML = suppliers.map(s => `
+      <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+        <div class="flex-fill min-w-0">
+          <div class="fw-semibold">${APP.esc ? APP.esc(s.name) : s.name}</div>
+          <div class="text-muted small">
+            ${s.mobile ? `📞 ${s.mobile}` : ''}
+            ${s.address ? ` &bull; ${s.address}` : ''}
+            ${s.notes   ? ` &bull; ${s.notes}`   : ''}
+          </div>
+        </div>
+        <div class="d-flex gap-1 flex-shrink-0">
+          <button class="btn btn-sm btn-outline-primary" style="padding:3px 8px;" onclick="RESTOCK.editSupplier('${s.id}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" style="padding:3px 8px;" onclick="RESTOCK.deleteSupplier('${s.id}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>`).join('');
+  },
+
+  editSupplier(id) {
+    const s = DB.getSuppliers().find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('editSupId').value     = s.id;
+    document.getElementById('editSupName').value   = s.name;
+    document.getElementById('editSupMobile').value = s.mobile   || '';
+    document.getElementById('editSupArea').value   = s.address  || '';
+    document.getElementById('editSupNotes').value  = s.notes    || '';
+    // Open edit modal on top of manager modal
+    new bootstrap.Modal(document.getElementById('editSupModal')).show();
+  },
+
+  deleteSupplier(id) {
+    const s = DB.getSuppliers().find(x => x.id === id);
+    const stockUsed = DB.getStockEntries().filter(e => e.supplierId === id).length;
+    const msg = stockUsed
+      ? `Delete "${s?.name}"? They appear in ${stockUsed} stock entry record(s) (those records will remain).`
+      : `Delete supplier "${s?.name}"?`;
+    APP.showConfirm(msg, () => {
+      DB.deleteSupplier(id);
+      APP.showToast('Supplier deleted', 'info');
+      this.renderSupManagerList();
+      this.loadSuppliers();
+    });
+  },
+
+  saveEntry(status) {
+    const productSel = document.getElementById('rstProduct');
+    const opt = productSel.selectedOptions[0];
+    if (!opt || !opt.value) { APP.showToast('Please select a product', 'warning'); return; }
+    const qty = parseInt(document.getElementById('rstQty').value || 0);
+    if (qty <= 0) { APP.showToast('Quantity must be greater than 0', 'warning'); return; }
+
+    const supplierSel = document.getElementById('rstSupplier');
+    const supOpt = supplierSel.selectedOptions[0];
+
+    const entry = {
+      date: document.getElementById('rstDate').value,
+      productId: opt.value,
+      productName: opt.dataset.name,
+      supplierId: supOpt?.value || '',
+      supplierName: supOpt?.dataset?.name || '',
+      quantity: qty,
+      purchasePrice: parseFloat(document.getElementById('rstPrice').value || 0),
+      totalCost: parseFloat(document.getElementById('rstTotal').value || 0),
+      notes: document.getElementById('rstNotes').value,
+      status,
+    };
+
+    entry.createdBy   = typeof AUTH !== 'undefined' ? AUTH.getUserName() : 'Unknown';
+    entry.createdById = typeof AUTH !== 'undefined' ? AUTH.getUserId()   : '';
+    DB.addStockEntry(entry);
+    if (typeof AUTH !== 'undefined' && status === 'posted') AUTH.log('stock_posted', { product: entry.productName, qty: entry.quantity });
+    APP.showToast(status === 'posted' ? t('stockPosted') : t('saleSaved'), 'success');
+    APP.updateSyncStatus();
+
+    // Reset form
+    productSel.value = '';
+    ['rstQty','rstPrice','rstTotal','rstNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value = id === 'rstQty' ? 1 : ''; });
+    document.getElementById('lowStockAlert').classList.add('d-none');
+
+    this.loadProducts(); // refresh stock counts
+    this.render();
+    this.renderNeedRestock();
+  },
+
+  render() {
+    let data = DB.getStockEntries();
+    if (this.search) data = data.filter(s => (s.productName||'').toLowerCase().includes(this.search) || (s.supplierName||'').toLowerCase().includes(this.search));
+    const paged = APP.paginate(data, this.page, 15);
+    const tbody = document.getElementById('stockHistoryBody');
+    if (!tbody) return;
+    if (!paged.data.length) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">${t('noData')}</td></tr>`; return; }
+    tbody.innerHTML = paged.data.map(s => `
+      <tr>
+        <td>${APP.fmtDate(s.date)}</td>
+        <td><strong>${s.productName}</strong></td>
+        <td>${s.supplierName || '-'}</td>
+        <td class="text-success fw-bold">+${s.quantity}</td>
+        <td>${APP.fmt(s.purchasePrice)}</td>
+        <td>${APP.fmt(s.totalCost)}</td>
+        <td><span class="badge ${s.status === 'posted' ? 'bg-success' : 'bg-warning text-dark'}">${s.status}</span></td>
+      </tr>`).join('');
+    APP.renderPagination('stockPagination', paged.page, paged.pages, p => { this.page = p; this.render(); });
+  },
+
+  renderNeedRestock() {
+    const low = DB.getLowStockProducts();
+    const tbody = document.getElementById('needRestockBody');
+    if (!tbody) return;
+    if (!low.length) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-success py-3"><i class="bi bi-check-circle me-2"></i>All products have sufficient stock</td></tr>`; return; }
+    tbody.innerHTML = low.map(p => `
+      <tr>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.category || '-'}</td>
+        <td><span class="badge bg-danger">${p.currentStock} ${p.unit}</span></td>
+        <td>${p.reorderLevel} ${p.unit}</td>
+        <td class="text-danger fw-bold">-${p.reorderLevel - p.currentStock}</td>
+        <td>
+          <button class="btn btn-sm btn-success" onclick="RESTOCK.quickRestock('${p.id}')">
+            <i class="bi bi-plus"></i> Restock
+          </button>
+        </td>
+      </tr>`).join('');
+  },
+
+  quickRestock(productId) {
+    const product = DB.getProduct(productId);
+    if (!product) return;
+    const sel = document.getElementById('rstProduct');
+    sel.value = productId;
+    sel.dispatchEvent(new Event('change'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Auth guard + user badge
+    if (!AUTH.guard('restock')) return;
+    AUTH.renderUserBadge();
+    AUTH.applyRestrictions();
+
+  document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  });
+  document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  });
+  RESTOCK.init();
+});
+</script>
+</body>
+</html>

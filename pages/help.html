@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Guide | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+/* Help page specific styles */
+.help-section { margin-bottom: 32px; }
+.help-card { background: var(--card-bg,#fff); border-radius: 12px; border: 1px solid var(--card-border,#edf0f5); padding: 20px 22px; margin-bottom: 14px; box-shadow: var(--card-shadow); }
+.role-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: #fff; }
+.role-owner   { background: #6d28d9; }
+.role-manager { background: #0a7c4e; }
+.role-salesman{ background: #1a56db; }
+.access-table td, .access-table th { font-size: 13px; vertical-align: middle; padding: 8px 12px; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary,#1a56db); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.step-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.step-body { flex: 1; font-size: 13.5px; line-height: 1.65; color: var(--text-main,#212529); }
+.step-body strong { color: var(--primary,#1a56db); }
+.code-path { display: inline-block; background: var(--body-bg,#f1f3f8); border: 1px solid var(--card-border,#dee2e6); border-radius: 6px; padding: 2px 8px; font-family: monospace; font-size: 12px; color: #e83e8c; }
+.warn-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #856404; }
+.info-box { background: var(--primary-light,#e8f0fe); border: 1px solid var(--primary,#1a56db); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #1a4474; }
+.success-box { background: #d1fae5; border: 1px solid #0f9b58; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #065f46; }
+.help-tabs .nav-link { font-size: 13.5px; font-weight: 500; }
+.section-icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.tick { color: #0f9b58; font-size: 16px; }
+.cross { color: #dc3545; font-size: 16px; }
+.help-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.help-sub { font-size: 13px; color: var(--text-muted,#6c757d); margin-bottom: 16px; }
+.workflow-arrow { text-align: center; color: var(--primary,#1a56db); font-size: 20px; margin: 4px 0; }
+.workflow-box { border: 1.5px solid var(--card-border,#dee2e6); border-radius: 10px; padding: 10px 14px; font-size: 13px; text-align: center; }
+.workflow-box.highlight { border-color: var(--primary,#1a56db); background: var(--primary-light,#e8f0fe); }
+[data-theme="dark"] .warn-box { background: #3d2e00; border-color: #b8860b; color: #ffd966; }
+[data-theme="dark"] .success-box { background: #052e16; border-color: #0f9b58; color: #6ee7b7; }
+[data-theme="dark"] .code-path { background: #0f172a; color: #f472b6; border-color: #334155; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shop"></i></div>
+      <div class="sidebar-brand-text">Sales & Inventory<br><small>Management System</small></div>
+    </div>
+    <div class="sidebar-shop shop-header"></div>
+    <nav id="sideNav"></nav>
+    <div class="sidebar-footer"><div id="syncStatus"></div></div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+      <span id="topShopName">Sales & Inventory</span>
+      <div class="topbar-actions">
+        <div id="userBadge"></div>
+        <button class="btn btn-sm btn-outline-secondary" id="langToggle"><i class="bi bi-translate me-1"></i>EN/বাং</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-title"><i class="bi bi-question-circle"></i> <span data-t="helpGuide">Help & User Guide</span></div>
+
+      <!-- Tab navigation -->
+      <ul class="nav nav-tabs mb-4 help-tabs" id="helpTabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#" data-tab="roles">
+            <i class="bi bi-people me-1"></i>User Roles
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="owner">
+            <i class="bi bi-person-badge me-1"></i>Owner Guide
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="manager">
+            <i class="bi bi-person-gear me-1"></i>Manager Guide
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="salesman">
+            <i class="bi bi-person me-1"></i>Salesman Guide
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="sync">
+            <i class="bi bi-google me-1"></i>Google Sync
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-tab="faq">
+            <i class="bi bi-patch-question me-1"></i>FAQ
+          </a>
+        </li>
+      </ul>
+
+      <!-- ── ROLES TAB ── -->
+      <div id="tab-roles" class="tab-pane-content">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-shield-lock text-primary"></i> Role Overview</div>
+          <div class="help-sub">The system has 3 roles. Each person logs in with a 4-digit PIN and sees only what they are allowed to access.</div>
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+              <div class="text-center p-3 rounded" style="background:#f5f0ff;border:1.5px solid #6d28d9;">
+                <div class="mb-2"><i class="bi bi-person-badge fs-1" style="color:#6d28d9;"></i></div>
+                <div class="role-badge role-owner mb-2">Owner</div>
+                <div class="small text-muted">Full access to everything. Google Sync, Finance, Investors, Reports, Settings, and all staff data.</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-center p-3 rounded" style="background:#f0faf5;border:1.5px solid #0a7c4e;">
+                <div class="mb-2"><i class="bi bi-person-gear fs-1" style="color:#0a7c4e;"></i></div>
+                <div class="role-badge role-manager mb-2">Manager</div>
+                <div class="small text-muted">Dashboard, Products, Invoice, and Restock. Can see purchase prices. Max 20% discount.</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-center p-3 rounded" style="background:#eff6ff;border:1.5px solid #1a56db;">
+                <div class="mb-2"><i class="bi bi-person fs-1" style="color:#1a56db;"></i></div>
+                <div class="role-badge role-salesman mb-2">Salesman</div>
+                <div class="small text-muted">Invoice page only. Cannot see purchase prices. Max 10% discount. Serves by: name on invoice.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Access table -->
+          <div class="table-responsive">
+            <table class="table table-bordered access-table">
+              <thead class="table-dark">
+                <tr>
+                  <th>Feature / Page</th>
+                  <th class="text-center"><span class="role-badge role-owner" style="font-size:11px;">Owner</span></th>
+                  <th class="text-center"><span class="role-badge role-manager" style="font-size:11px;">Manager</span></th>
+                  <th class="text-center"><span class="role-badge role-salesman" style="font-size:11px;">Salesman</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><i class="bi bi-speedometer2 me-2 text-muted"></i>Dashboard</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-receipt me-2 text-muted"></i>Invoice / POS</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td></tr>
+                <tr><td><i class="bi bi-box-seam me-2 text-muted"></i>Products</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-arrow-repeat me-2 text-muted"></i>Restock</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-wallet2 me-2 text-muted"></i>Finance & Expenses</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-people-fill me-2 text-muted"></i>Investors & Partners</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-table me-2 text-muted"></i>Master Data</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-bar-chart me-2 text-muted"></i>Reports</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-gear me-2 text-muted"></i>Settings</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-eye-slash me-2 text-muted"></i>See Purchase Prices</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-percent me-2 text-muted"></i>Max Discount Allowed</td><td class="text-center fw-bold text-success">100%</td><td class="text-center fw-bold text-warning">20%</td><td class="text-center fw-bold text-danger">10%</td></tr>
+                <tr><td><i class="bi bi-cloud-upload me-2 text-muted"></i>Google Sync (Push/Pull)</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+                <tr><td><i class="bi bi-trash me-2 text-muted"></i>Delete Records</td><td class="text-center"><i class="bi bi-check-circle-fill tick"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td><td class="text-center"><i class="bi bi-x-circle-fill cross"></i></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-box mt-3">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Default PINs:</strong> Owner = <code>1234</code> &bull; Manager = <code>2222</code> &bull; Salesmen have individual PINs set by the owner. <strong>Change the owner PIN immediately</strong> after setup in Settings → Staff & Access Control.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── OWNER GUIDE TAB ── -->
+      <div id="tab-owner" class="tab-pane-content d-none">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-person-badge" style="color:#6d28d9;"></i> Owner — Full System Guide</div>
+          <div class="help-sub">As owner you have access to everything. Here is what you should do and when.</div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <div class="p-3 rounded h-100" style="background:var(--body-bg,#f8f9fb);">
+                <div class="fw-bold mb-2"><i class="bi bi-calendar-check me-1 text-primary"></i>Daily Tasks</div>
+                <div class="step-row"><div class="step-num">1</div><div class="step-body">Check the <strong>Dashboard</strong> every morning — review yesterday's sales, outstanding dues, and low stock alerts.</div></div>
+                <div class="step-row"><div class="step-num">2</div><div class="step-body">Go to <strong>Finance → Due Collection</strong> — follow up on customers with outstanding balances and record any payments received.</div></div>
+                <div class="step-row"><div class="step-num">3</div><div class="step-body">At end of day, go to <strong>Settings → Push to Sheets</strong> to back up all data to Google Sheets. This is your cloud backup.</div></div>
+                <div class="step-row"><div class="step-num">4</div><div class="step-body">Check <strong>Settings → Staff Activity Log</strong> to review what your manager and salesmen did today.</div></div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 rounded h-100" style="background:var(--body-bg,#f8f9fb);">
+                <div class="fw-bold mb-2"><i class="bi bi-calendar3 me-1 text-success"></i>Weekly / Monthly Tasks</div>
+                <div class="step-row"><div class="step-num">1</div><div class="step-body">Open <strong>Reports</strong> — review revenue, gross profit, net profit, and top selling products for the month.</div></div>
+                <div class="step-row"><div class="step-num">2</div><div class="step-body">Open <strong>Finance → Cash Flow</strong> — see the monthly revenue vs expenses vs profit chart.</div></div>
+                <div class="step-row"><div class="step-num">3</div><div class="step-body">Open <strong>Investors & Partners</strong> — calculate profit distribution for the month and record any withdrawals or profit shares paid out.</div></div>
+                <div class="step-row"><div class="step-num">4</div><div class="step-body">Go to <strong>Settings → Export JSON Backup</strong> — save a full backup file to your computer or USB once a month.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fw-bold mb-3 mt-2"><i class="bi bi-people me-1 text-primary"></i> Managing Staff Accounts</div>
+          <div class="step-row"><div class="step-num">1</div><div class="step-body">Go to <strong>Settings → Staff & Access Control</strong> to add new accounts. Enter the staff name, select their role (Manager or Salesman), and set a 4-digit PIN.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-body">To change anyone's PIN — click the <strong>🔑 key button</strong> next to their name. You must enter your own owner PIN to authorise the change.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-body">To remove a staff member — click the <strong>remove button</strong> next to their name. They immediately lose access.</div></div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-body">The <strong>Activity Log</strong> shows every sale, stock entry, and login by each staff member with timestamp. Use this to verify work.</div></div>
+
+          <div class="warn-box mt-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Important:</strong> Only the Owner account can Push/Pull Google Sheets, change settings, view finance & investor data, and access reports. Keep your owner PIN private — do not share it with staff.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MANAGER GUIDE TAB ── -->
+      <div id="tab-manager" class="tab-pane-content d-none">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-person-gear" style="color:#0a7c4e;"></i> Manager — Your Daily Tasks</div>
+          <div class="help-sub">You can access Dashboard, Products, Invoice, and Restock. Here is how to use each one.</div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6">
+              <div class="help-card" style="border-color:#0a7c4e22;">
+                <div class="fw-bold mb-2"><i class="bi bi-speedometer2 me-1 text-success"></i> Dashboard</div>
+                <ul class="small ps-3">
+                  <li>Check today's total sales amount</li>
+                  <li>See which products are running low on stock</li>
+                  <li>View recent sales and restock entries</li>
+                  <li>See outstanding customer dues (but cannot collect — tell the owner)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="help-card" style="border-color:#0a7c4e22;">
+                <div class="fw-bold mb-2"><i class="bi bi-receipt me-1 text-success"></i> Invoice / POS</div>
+                <ul class="small ps-3">
+                  <li>Create sales for customers</li>
+                  <li>Add multiple products to one invoice</li>
+                  <li>Apply discounts — <strong>maximum 20%</strong> of subtotal</li>
+                  <li>Print, download PDF, or send via WhatsApp</li>
+                  <li>Select payment method (Cash, bKash, Nagad, etc.)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="help-card" style="border-color:#0a7c4e22;">
+                <div class="fw-bold mb-2"><i class="bi bi-box-seam me-1 text-success"></i> Products</div>
+                <ul class="small ps-3">
+                  <li>Add new products with name, category, price, and stock</li>
+                  <li>Edit existing products (prices, stock levels)</li>
+                  <li>Import products in bulk from a CSV or Excel file</li>
+                  <li>Manage product categories</li>
+                  <li>Export the product list to CSV</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="help-card" style="border-color:#0a7c4e22;">
+                <div class="fw-bold mb-2"><i class="bi bi-arrow-repeat me-1 text-success"></i> Restock</div>
+                <ul class="small ps-3">
+                  <li>Record stock received from a supplier</li>
+                  <li>Select product, enter quantity and purchase price</li>
+                  <li>Click <strong>Post Stock</strong> — stock is added immediately</li>
+                  <li>Use <strong>Quick Restock</strong> buttons for low-stock items</li>
+                  <li>Add or edit suppliers using the person+ button</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="warn-box">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>You cannot:</strong> delete posted sales or stock entries, access Finance/Reports/Settings, push or pull Google Sheets data, or give discounts above 20%. If you need any of these, ask the owner.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SALESMAN GUIDE TAB ── -->
+      <div id="tab-salesman" class="tab-pane-content d-none">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-person" style="color:#1a56db;"></i> Salesman — How to Create a Sale</div>
+          <div class="help-sub">You only have access to the Invoice page. Follow these steps for every sale.</div>
+
+          <div class="step-row"><div class="step-num">1</div><div class="step-body"><strong>Open the app → Login screen</strong><br>Select the <span class="role-badge role-salesman" style="font-size:11px;padding:3px 10px;">Salesman</span> tab → select your name from the dropdown → enter your 4-digit PIN → tap Login.</div></div>
+
+          <div class="step-row"><div class="step-num">2</div><div class="step-body"><strong>Invoice opens automatically</strong><br>A new invoice is ready. The Invoice No is auto-generated. Today's date is already filled in.</div></div>
+
+          <div class="step-row"><div class="step-num">3</div><div class="step-body"><strong>Enter customer details (optional)</strong><br>Select a customer from the dropdown, or type their name and mobile number directly. For walk-in customers, you can leave this blank.</div></div>
+
+          <div class="step-row"><div class="step-num">4</div><div class="step-body"><strong>Add products</strong><br>Select a product from the <em>Product</em> dropdown — the selling price fills automatically. Enter the quantity. Click <strong>Add</strong>. Repeat for each item. The system will warn you if stock is insufficient.</div></div>
+
+          <div class="step-row"><div class="step-num">5</div><div class="step-body"><strong>Apply discount (if permitted)</strong><br>You can give a discount of <strong>maximum 10%</strong> of the subtotal. If you enter more, it will be automatically reduced. If a customer asks for more discount, they must speak with the manager or owner.</div></div>
+
+          <div class="step-row"><div class="step-num">6</div><div class="step-body"><strong>Select payment method and enter amount paid</strong><br>Choose Cash, bKash, Nagad, Rocket, or Card. Enter the amount the customer gives you. The system shows the change to return, or the due amount if they pay partially.</div></div>
+
+          <div class="step-row"><div class="step-num">7</div><div class="step-body"><strong>Click Post Sale</strong><br>The invoice is saved, stock is deducted, and your name appears on the invoice as <em>Served by</em>. You can then Print, Download PDF, or Send via WhatsApp.</div></div>
+
+          <div class="step-row"><div class="step-num">8</div><div class="step-body"><strong>Click New Invoice for the next customer</strong><br>The form clears and a new invoice number is generated. You are ready for the next sale.</div></div>
+
+          <div class="warn-box mt-2">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Remember:</strong> You cannot see product purchase prices. You cannot edit or delete a sale once posted. You cannot give more than 10% discount. If you make a mistake on a posted sale, tell the manager or owner.
+          </div>
+
+          <div class="info-box mt-2">
+            <i class="bi bi-lightbulb me-2"></i>
+            <strong>Tip:</strong> Your session stays active for 8 hours. If you close the browser and reopen it, you will need to log in again. This keeps customer and price data safe.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GOOGLE SYNC TAB ── -->
+      <div id="tab-sync" class="tab-pane-content d-none">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-google text-primary"></i> Google Sheets Sync — Complete Setup Guide</div>
+          <div class="help-sub">Sync lets you back up all data to Google Sheets and access it from any device. Only the Owner can do this.</div>
+
+          <div class="warn-box mb-4">
+            <i class="bi bi-wifi me-2"></i>
+            <strong>Internet required.</strong> The app works fully offline without sync. Sync is only needed when you want to back up data to the cloud or access it from another device.
+          </div>
+
+          <!-- Part 1 -->
+          <div class="fw-bold fs-6 mb-3 mt-2" style="color:var(--primary,#1a56db);">
+            <i class="bi bi-1-circle-fill me-2"></i>Create a Google Cloud Project
+          </div>
+          <div class="step-row"><div class="step-num">1</div><div class="step-body">Go to <strong>console.cloud.google.com</strong> and sign in with the Gmail you want to use for sync.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-body">Click the <strong>project dropdown</strong> at the top → <strong>New Project</strong> → Name it <span class="code-path">my-biz-inventory</span> → Click <strong>Create</strong>.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-body">In the left sidebar go to <strong>APIs & Services → Library</strong>. Search for <span class="code-path">Google Sheets API</span> → Click it → Click <strong>Enable</strong>. Then search for <span class="code-path">Google Drive API</span> → Enable that too.</div></div>
+
+          <!-- Part 2 -->
+          <div class="fw-bold fs-6 mb-3 mt-4" style="color:var(--primary,#1a56db);">
+            <i class="bi bi-2-circle-fill me-2"></i>Set Up OAuth Consent Screen
+          </div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-body">Go to <strong>APIs & Services → OAuth consent screen</strong> → Select <strong>External</strong> → Click <strong>Create</strong>.</div></div>
+          <div class="step-row"><div class="step-num">5</div><div class="step-body">Fill in: App name = <span class="code-path">My Biz Inventory</span>, Support email = your Gmail. Click <strong>Save and Continue</strong> through the next 3 screens without changes.</div></div>
+          <div class="step-row"><div class="step-num">6</div><div class="step-body">On the <strong>Test users</strong> step — click <strong>Add Users</strong> and enter your Gmail address. Click Save. <em>(While in Testing mode, only listed users can connect.)</em></div></div>
+
+          <!-- Part 3 -->
+          <div class="fw-bold fs-6 mb-3 mt-4" style="color:var(--primary,#1a56db);">
+            <i class="bi bi-3-circle-fill me-2"></i>Create OAuth Client ID
+          </div>
+          <div class="step-row"><div class="step-num">7</div><div class="step-body">Go to <strong>APIs & Services → Credentials</strong> → <strong>Create Credentials → OAuth client ID</strong>. Set Application type = <strong>Web application</strong>.</div></div>
+          <div class="step-row"><div class="step-num">8</div><div class="step-body">Under <strong>Authorized JavaScript origins</strong>, click <strong>Add URI</strong> and add your app URL. If hosted on GitHub Pages: <span class="code-path">https://yourusername.github.io</span>. For local testing: <span class="code-path">http://localhost:8080</span>. Do NOT add a trailing slash.</div></div>
+          <div class="step-row"><div class="step-num">9</div><div class="step-body">Click <strong>Create</strong>. A popup shows your <strong>Client ID</strong> — it looks like: <span class="code-path">123456789-abc.apps.googleusercontent.com</span>. Copy it.</div></div>
+
+          <!-- Part 4 -->
+          <div class="fw-bold fs-6 mb-3 mt-4" style="color:var(--primary,#1a56db);">
+            <i class="bi bi-4-circle-fill me-2"></i>Add Client ID to the App
+          </div>
+          <div class="step-row"><div class="step-num">10</div><div class="step-body">Open <span class="code-path">assets/js/sheet-sync.js</span> in any text editor. Find: <span class="code-path">CLIENT_ID: '&lt;&lt;YOUR_GOOGLE_CLIENT_ID&gt;&gt;'</span> and replace with your actual Client ID. Save the file.</div></div>
+          <div class="step-row"><div class="step-num">11</div><div class="step-body">Upload the updated <span class="code-path">sheet-sync.js</span> to GitHub (if hosted) — go to your repo → navigate to the file → click the pencil icon → paste your updated code → Commit changes.</div></div>
+
+          <!-- Part 5 -->
+          <div class="fw-bold fs-6 mb-3 mt-4" style="color:var(--primary,#1a56db);">
+            <i class="bi bi-5-circle-fill me-2"></i>Connect and Create Your Spreadsheet
+          </div>
+          <div class="step-row"><div class="step-num">12</div><div class="step-body">Log in as <strong>Owner</strong> → go to <strong>Settings → Google Sheets Integration</strong> → click <strong>Connect Google</strong>. A Google login popup appears — sign in and allow access.</div></div>
+          <div class="step-row"><div class="step-num">13</div><div class="step-body">Click <strong>Create Spreadsheet</strong>. The app creates a Google Sheet in your Drive named <em>[Business Name] Inventory Database</em> with 10 tabs automatically set up.</div></div>
+          <div class="step-row"><div class="step-num">14</div><div class="step-body">Click <strong>Push to Sheets</strong> — all your local data uploads. A success message shows how many records were synced. Check Google Drive to verify.</div></div>
+
+          <!-- Workflow diagram -->
+          <div class="fw-bold mb-3 mt-4"><i class="bi bi-diagram-3 me-1 text-primary"></i> Daily Sync Workflow</div>
+          <div class="row g-2 align-items-center text-center mb-3">
+            <div class="col-12 col-md-3"><div class="workflow-box highlight"><i class="bi bi-laptop me-1"></i><strong>Shop Counter</strong><br><small>Post sales all day</small></div></div>
+            <div class="col-12 col-md-1 workflow-arrow"><i class="bi bi-arrow-right-circle-fill d-none d-md-block"></i><i class="bi bi-arrow-down-circle-fill d-md-none"></i></div>
+            <div class="col-12 col-md-3"><div class="workflow-box"><i class="bi bi-cloud me-1"></i><strong>End of Day</strong><br><small>Owner clicks Push</small></div></div>
+            <div class="col-12 col-md-1 workflow-arrow"><i class="bi bi-arrow-right-circle-fill d-none d-md-block"></i><i class="bi bi-arrow-down-circle-fill d-md-none"></i></div>
+            <div class="col-12 col-md-4"><div class="workflow-box"><i class="bi bi-phone me-1"></i><strong>Owner's Phone / Other Device</strong><br><small>Log in → Settings → Pull from Sheets</small></div></div>
+          </div>
+
+          <div class="success-box">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong>Rule of thumb:</strong> One device pushes. Other devices pull. Never have two devices pushing at the same time — this can create duplicate rows in your sheet.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FAQ TAB ── -->
+      <div id="tab-faq" class="tab-pane-content d-none">
+        <div class="help-card">
+          <div class="help-title"><i class="bi bi-patch-question text-primary"></i> Frequently Asked Questions</div>
+
+          <div class="accordion" id="faqAccordion">
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                  My data disappeared after clearing the browser. What happened?
+                </button>
+              </h2>
+              <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">All data is stored in your browser's <strong>LocalStorage</strong>. Clearing browser history or cache deletes it. Always export a JSON backup from <strong>Settings → Export JSON Backup</strong> regularly, and push to Google Sheets daily. To restore: Settings → Import Backup → select your backup file.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                  Can two people use the app on different devices at the same time?
+                </button>
+              </h2>
+              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Yes, but their data stays separate on each device until synced. The recommended workflow is: one device is the main counter (posting sales), the owner pushes to Google Sheets at end of day, and can then pull on their phone to review. Avoid two people posting and pushing from different devices simultaneously.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                  The Google Connect button is not working.
+                </button>
+              </h2>
+              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Three things to check: (1) You must be running the app on <strong>https://</strong> (GitHub Pages or similar) or <strong>http://localhost</strong> — it will not work on a <strong>file://</strong> URL (double-clicked from desktop). (2) Your GitHub Pages URL must be added to <strong>Authorized JavaScript origins</strong> in Google Cloud Console. (3) Your Gmail must be added as a test user. See the Google Sync tab for full setup steps.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                  A salesman made a mistake on a posted sale. How do I fix it?
+                </button>
+              </h2>
+              <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Posted sales cannot be edited (this is by design for integrity). The cleanest fix is: log in as Owner → go to Master Data → Sales → find the invoice → note the details → create a correcting entry. For a wrong product, you can manually adjust stock in Products. If it was a wrong amount, record a due payment adjustment in Finance.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                  How do I add products in bulk instead of one by one?
+                </button>
+              </h2>
+              <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Go to <strong>Products → Import CSV / Excel</strong>. Download the template, fill in your products (Name is the only required column), and upload. The system previews all rows, flags errors, handles duplicates, and imports everything in one click. You can also export from your Google Sheet as CSV and upload directly.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                  I forgot my PIN. How do I reset it?
+                </button>
+              </h2>
+              <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">If a <strong>staff member</strong> forgot their PIN: the owner can change it from Settings → Staff & Access Control → click the 🔑 key button → enter the new PIN (requires owner's PIN to confirm).<br><br>If the <strong>owner</strong> forgot their PIN: open the browser console (F12) and type: <span class="code-path">AUTH.getUsers()</span> to see users, then <span class="code-path">AUTH.updateUserPIN('user-owner','1234')</span> to reset to 1234. Then log in and change it properly from Settings.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                  How do I switch the app to Bengali?
+                </button>
+              </h2>
+              <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Click the <strong>EN/বাং</strong> button in the top-right corner of any page. The language switches immediately and your preference is saved. Click again to switch back to English.</div>
+              </div>
+            </div>
+
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                  How do I change the app theme / colour scheme?
+                </button>
+              </h2>
+              <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body small">Go to <strong>Settings → App Settings → Theme / Color Scheme</strong>. Click any of the 6 colour swatches — Default Blue, Forest Green, Royal Purple, Warm Sunrise, Ocean Teal, or Dark Mode. The theme applies instantly across all pages and is saved automatically.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <footer class="app-footer no-print"></footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/sheet-sync.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Help page is accessible to all roles AND without login (for onboarding)
+    // If logged in, apply role restrictions; if not, show public version
+    const session = typeof AUTH !== 'undefined' ? AUTH.getSession() : null;
+    if (session) {
+      AUTH.renderUserBadge();
+      AUTH.applyRestrictions();
+    } else {
+      // Not logged in — show a back to login button in topbar
+      const badge = document.getElementById('userBadge');
+      if (badge) {
+        const isInPages = window.location.pathname.includes('/pages/') || window.location.href.includes('/pages/');
+        badge.innerHTML = `<a href="${isInPages ? '../login.html' : 'login.html'}" class="btn btn-sm btn-primary">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Login
+        </a>`;
+      }
+    }
+    // Don't call AUTH.guard() here — help is always accessible
+
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    });
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+    });
+
+    APP.currentPage = 'help';
+    // Hide the floating ? button since we're already on the help page
+    setTimeout(() => {
+      const floatBtn = document.querySelector('.help-float');
+      if (floatBtn) floatBtn.style.display = 'none';
+    }, 100);
+    // APP.init() called by DOMContentLoaded in app.js already, but we need tabs
+    document.querySelectorAll('[data-tab]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('[data-tab]').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        document.querySelectorAll('.tab-pane-content').forEach(x => x.classList.add('d-none'));
+        document.getElementById('tab-' + a.dataset.tab)?.classList.remove('d-none');
+      });
+    });
+
+    // Show only the tab relevant to the logged-in role on first open
+    const role = AUTH.getRole();
+    if (role === 'manager') {
+      document.querySelector('[data-tab="manager"]')?.click();
+    } else if (role === 'salesman') {
+      document.querySelector('[data-tab="salesman"]')?.click();
+    }
+});
+</script>
+</body>
+</html>

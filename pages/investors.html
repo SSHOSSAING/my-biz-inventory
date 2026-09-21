@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investors & Partners | Sales & Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.investor-card { border-radius: 12px; overflow: hidden; border: 1px solid var(--card-border, #edf0f5); background: var(--card-bg, #fff); box-shadow: var(--card-shadow); margin-bottom: 16px; }
+.investor-card-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.investor-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.share-ring { position: relative; display: inline-block; }
+.profit-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--card-border, #f0f2f5); font-size: 13px; }
+.profit-row:last-child { border-bottom: none; }
+.ledger-row-credit { color: #198754; }
+.ledger-row-debit { color: #dc3545; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shop"></i></div>
+      <div class="sidebar-brand-text">Sales & Inventory<br><small>Management System</small></div>
+    </div>
+    <div class="sidebar-shop shop-header"></div>
+    <nav id="sideNav"></nav>
+    <div class="sidebar-footer"><div id="syncStatus"></div></div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+      <span id="topShopName">Sales & Inventory</span>
+      <div class="topbar-actions"><div id="userBadge"></div>
+        <button class="btn btn-sm btn-outline-primary" id="syncBtn" onclick="GOOGLE.syncAll()"><i class="bi bi-cloud-upload me-1"></i>Sync</button>
+        <button class="btn btn-sm btn-outline-secondary" id="langToggle"><i class="bi bi-translate me-1"></i>EN/বাং</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="page-title mb-0"><i class="bi bi-people-fill"></i> <span data-t="investors">Investors & Partners</span></div>
+        <button class="btn btn-primary" onclick="INVESTORS.openInvestorModal()">
+          <i class="bi bi-person-plus me-1"></i><span data-t="addInvestor">Add Investor / Partner</span>
+        </button>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="summary-card">
+            <div class="summary-card-icon icon-blue"><i class="bi bi-people"></i></div>
+            <div class="summary-card-body">
+              <div class="summary-card-label" data-t="partners">Total Partners</div>
+              <div class="summary-card-value" id="cardPartners">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card">
+            <div class="summary-card-icon icon-green"><i class="bi bi-cash-stack"></i></div>
+            <div class="summary-card-body">
+              <div class="summary-card-label" data-t="totalCapital">Total Capital Invested</div>
+              <div class="summary-card-value" id="cardCapital">BDT 0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card">
+            <div class="summary-card-icon icon-purple"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="summary-card-body">
+              <div class="summary-card-label" data-t="netProfit">Net Profit (All Time)</div>
+              <div class="summary-card-value" id="cardNetProfit">BDT 0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card">
+            <div class="summary-card-icon icon-orange"><i class="bi bi-percent"></i></div>
+            <div class="summary-card-body">
+              <div class="summary-card-label" data-t="roi">Overall ROI</div>
+              <div class="summary-card-value" id="cardROI">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period selector for profit distribution -->
+      <div class="panel mb-4">
+        <div class="panel-body py-2">
+          <div class="row g-2 align-items-center">
+            <div class="col-auto fw-semibold" data-t="profitDistribution">Calculate Profit Distribution For:</div>
+            <div class="col-auto">
+              <select class="form-select form-select-sm" id="profitPeriod">
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="alltime" selected>All Time</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+            <div id="customProfitRange" class="col-auto d-none">
+              <div class="d-flex gap-2 align-items-center">
+                <input type="date" class="form-control form-control-sm" id="profitFrom">
+                <span>to</span>
+                <input type="date" class="form-control form-control-sm" id="profitTo">
+              </div>
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-primary btn-sm" onclick="INVESTORS.renderDistribution()">
+                <i class="bi bi-calculator me-1"></i>Calculate
+              </button>
+            </div>
+            <div class="col-auto ms-auto">
+              <button class="btn btn-outline-secondary btn-sm" onclick="INVESTORS.exportLedger()">
+                <i class="bi bi-filetype-csv me-1"></i><span data-t="ledger">Export Ledger</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profit Distribution Cards -->
+      <div class="row g-3 mb-4" id="distributionCards">
+        <div class="col-12 text-center text-muted py-3">
+          <i class="bi bi-people fs-1 d-block mb-2 opacity-25"></i>
+          Add investors to see profit distribution
+        </div>
+      </div>
+
+      <!-- Main Content Row -->
+      <div class="row g-3">
+        <!-- Investors List -->
+        <div class="col-12 col-lg-5">
+          <div class="panel">
+            <div class="panel-header"><i class="bi bi-people me-2"></i><span data-t="partners">Partners & Investors</span></div>
+            <div class="panel-body" id="investorsList">
+              <div class="text-center text-muted py-4">No investors added yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Capital Transactions -->
+        <div class="col-12 col-lg-7">
+          <!-- Add Transaction -->
+          <div class="panel mb-3">
+            <div class="panel-header"><i class="bi bi-plus-circle me-2"></i><span data-t="capitalTransaction">Record Capital Transaction</span></div>
+            <div class="panel-body">
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label" data-t="investor">Investor / Partner *</label>
+                  <select class="form-select" id="txnInvestor">
+                    <option value="">-- Select --</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" data-t="description">Transaction Type *</label>
+                  <select class="form-select" id="txnType">
+                    <option value="investment">💰 Investment (In)</option>
+                    <option value="withdrawal">💸 Withdrawal (Out)</option>
+                    <option value="profit_share">📈 Profit Distribution</option>
+                    <option value="loan">🏦 Loan to Business</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label"><span data-t="amount">Amount</span> (BDT) *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">৳</span>
+                    <input type="number" class="form-control" id="txnAmount" min="0" step="0.01">
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label" data-t="date">Date *</label>
+                  <input type="date" class="form-control" id="txnDate">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label" data-t="notes">Notes</label>
+                  <input type="text" class="form-control" id="txnNotes" placeholder="Optional description">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                  <button class="btn btn-primary w-100" id="saveTxnBtn">
+                    <i class="bi bi-save me-1"></i><span data-t="capitalTransaction">Record Transaction</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Ledger -->
+          <div class="panel">
+            <div class="panel-header d-flex justify-content-between flex-wrap gap-2">
+              <span><i class="bi bi-journal-text me-2"></i><span data-t="ledger">Transaction Ledger</span></span>
+              <select class="form-select form-select-sm" id="ledgerFilter" style="width:180px">
+                <option value="">All Investors</option>
+              </select>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr><th><span data-t="date">Date</span></th><th data-t="investor">Investor</th><th data-t="description">Type</th><th data-t="notes">Notes</th><th class="text-end" data-t="amount">Amount</th><th></th></tr>
+                </thead>
+                <tbody id="ledgerBody"></tbody>
+                <tfoot>
+                  <tr class="table-light fw-bold">
+                    <td colspan="4" class="text-end" data-t="netBalance">Net Capital Balance:</td>
+                    <td class="text-end" id="ledgerBalance">BDT 0</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="panel-body pt-0 d-flex justify-content-end"><div id="ledgerPagination"></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer no-print"></footer>
+  </div>
+</div>
+
+<!-- Investor Modal -->
+<div class="modal fade" id="investorModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="investorModalTitle" data-t="addInvestor">Add Investor / Partner</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" data-t="ownerName">Full Name *</label>
+            <input type="text" class="form-control" id="invName">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" data-t="mobile">Mobile</label>
+            <input type="tel" class="form-control" id="invMobile" placeholder="01XXXXXXXXX">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" data-t="email">Email</label>
+            <input type="email" class="form-control" id="invEmail">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" data-t="joinDate">Join Date</label>
+            <input type="date" class="form-control" id="invJoinDate">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Share / Equity % <span class="text-muted small">(profit distributed proportionally)</span></label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="invShare" min="0" max="100" step="0.1" placeholder="e.g. 50">
+              <span class="input-group-text">%</span>
+            </div>
+            <div class="form-text" id="shareWarning"></div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" data-t="notes">Notes / Role</label>
+            <textarea class="form-control" id="invNotes" rows="2" placeholder="e.g. Silent partner, Operations head..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="saveInvestorBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/sheet-sync.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+const INVESTORS = {
+  editingId: null,
+  ledgerPage: 1,
+  COLORS: ['#0d6efd','#198754','#dc3545','#fd7e14','#6f42c1','#0dcaf0','#d63384','#20c997'],
+
+  init() {
+    APP.currentPage = 'investors';
+    document.getElementById('txnDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('invJoinDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('profitPeriod')?.addEventListener('change', e => {
+      document.getElementById('customProfitRange')?.classList.toggle('d-none', e.target.value !== 'custom');
+    });
+    document.getElementById('invShare')?.addEventListener('input', () => this.checkShareWarning());
+    this.bindEvents();
+    this.renderAll();
+  },
+
+  renderAll() {
+    this.renderCards();
+    this.renderInvestorsList();
+    this.renderDistribution();
+    this.renderLedger();
+    this.loadInvestorSelects();
+  },
+
+  renderCards() {
+    const investors = DB.getInvestors();
+    const capital = DB.getTotalCapital();
+    const profit = DB.calcProfitSummary();
+    document.getElementById('cardPartners').textContent = investors.length;
+    document.getElementById('cardCapital').textContent = APP.fmt(capital);
+    document.getElementById('cardNetProfit').textContent = APP.fmt(profit.netProfit);
+    document.getElementById('cardROI').textContent = profit.roi + '%';
+  },
+
+  getProfitRange() {
+    const period = document.getElementById('profitPeriod')?.value || 'alltime';
+    const now = new Date();
+    if (period === 'alltime') return { from: null, to: null };
+    if (period === 'month') return {
+      from: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`,
+      to: now.toISOString().split('T')[0]
+    };
+    if (period === 'quarter') {
+      const q = Math.floor(now.getMonth() / 3);
+      return { from: `${now.getFullYear()}-${String(q*3+1).padStart(2,'0')}-01`, to: now.toISOString().split('T')[0] };
+    }
+    if (period === 'year') return { from: `${now.getFullYear()}-01-01`, to: now.toISOString().split('T')[0] };
+    if (period === 'custom') return {
+      from: document.getElementById('profitFrom')?.value || null,
+      to: document.getElementById('profitTo')?.value || null
+    };
+    return { from: null, to: null };
+  },
+
+  renderDistribution() {
+    const { from, to } = this.getProfitRange();
+    const summary = DB.calcProfitSummary(from, to);
+    const distribution = DB.distributeProfit(summary.netProfit);
+    const el = document.getElementById('distributionCards');
+    if (!el) return;
+
+    if (!distribution.length) {
+      el.innerHTML = `<div class="col-12 text-center text-muted py-3"><i class="bi bi-people fs-1 d-block mb-2 opacity-25"></i>Add investors to see profit distribution</div>`;
+      return;
+    }
+
+    const periodLabel = document.getElementById('profitPeriod')?.selectedOptions[0]?.text || 'All Time';
+    const isProfit = summary.netProfit >= 0;
+
+    el.innerHTML = `
+      <div class="col-12">
+        <div class="panel mb-3">
+          <div class="panel-body">
+            <div class="row g-2 text-center">
+              <div class="col-6 col-md-3">
+                <div class="text-muted small">Period Revenue</div>
+                <div class="fw-bold text-success">${APP.fmt(summary.revenue)}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-muted small">Total COGS</div>
+                <div class="fw-bold">${APP.fmt(summary.cogs)}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-muted small">Operating Expenses</div>
+                <div class="fw-bold text-danger">${APP.fmt(summary.expenses)}</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="text-muted small fw-bold">NET ${isProfit?'PROFIT':'LOSS'} (${periodLabel})</div>
+                <div class="fw-bold fs-5 ${isProfit?'text-success':'text-danger'}">${APP.fmt(Math.abs(summary.netProfit))}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${distribution.map((inv, i) => {
+        const color = this.COLORS[i % this.COLORS.length];
+        const isPos = inv.profitShare >= 0;
+        return `
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="investor-card">
+            <div class="investor-card-header" style="background:${color}18;">
+              <div class="investor-avatar" style="background:${color};">${(inv.name||'?')[0].toUpperCase()}</div>
+              <div class="flex-fill min-w-0">
+                <div class="fw-bold" style="color:${color};">${APP.esc(inv.name)}</div>
+                <div class="text-muted small">${inv.mobile||''}</div>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold" style="color:${color};">${inv.effectivePct}%</div>
+                <div class="text-muted" style="font-size:10px;">share</div>
+              </div>
+            </div>
+            <div class="px-3 py-2">
+              <div class="profit-row">
+                <span class="text-muted">Capital Invested</span>
+                <strong>${APP.fmt(inv.invested)}</strong>
+              </div>
+              <div class="profit-row">
+                <span class="text-muted">Share %</span>
+                <strong>${inv.sharePercent}%</strong>
+              </div>
+              <div class="profit-row">
+                <span class="text-muted">${isProfit ? '📈 Profit Share' : '📉 Loss Share'}</span>
+                <strong class="${isPos?'text-success':'text-danger'}">${APP.fmt(Math.abs(inv.profitShare))}</strong>
+              </div>
+              <div class="profit-row" style="border:none;">
+                <span style="font-size:11px;color:${color};">
+                  ${inv.notes ? APP.esc(inv.notes) : 'Partner'}
+                </span>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-xs btn-outline-secondary" style="padding:2px 6px;font-size:11px;" onclick="INVESTORS.openInvestorModal('${inv.id}')"><i class="bi bi-pencil"></i></button>
+                  <button class="btn btn-xs btn-outline-danger" style="padding:2px 6px;font-size:11px;" onclick="INVESTORS.deleteInvestor('${inv.id}')"><i class="bi bi-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}`;
+  },
+
+  renderInvestorsList() {
+    const investors = DB.getInvestors();
+    const el = document.getElementById('investorsList');
+    if (!el) return;
+    if (!investors.length) { el.innerHTML = `<div class="text-center text-muted py-4"><i class="bi bi-people fs-2 d-block mb-2 opacity-25"></i>No investors yet</div>`; return; }
+    const totalShare = investors.reduce((s, v) => s + (v.sharePercent||0), 0);
+    el.innerHTML = investors.map((inv, i) => {
+      const color = this.COLORS[i % this.COLORS.length];
+      const invested = DB.getInvestmentsForInvestor(inv.id).filter(t=>t.type==='investment').reduce((s,t)=>s+t.amount,0);
+      const withdrawn = DB.getInvestmentsForInvestor(inv.id).filter(t=>t.type==='withdrawal').reduce((s,t)=>s+t.amount,0);
+      return `
+        <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+          <div class="investor-avatar" style="background:${color};width:36px;height:36px;font-size:14px;">${(inv.name||'?')[0].toUpperCase()}</div>
+          <div class="flex-fill min-w-0">
+            <div class="fw-semibold">${APP.esc(inv.name)}</div>
+            <div class="text-muted small">${inv.mobile||''}</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold" style="color:${color};">${inv.sharePercent}%</div>
+            <div class="text-muted" style="font-size:10px;">Inv: ${APP.fmt(invested)}</div>
+          </div>
+        </div>`;
+    }).join('') +
+    `<div class="d-flex justify-content-between pt-2 small text-muted">
+       <span>Total shares allocated:</span>
+       <strong class="${totalShare > 100 ? 'text-danger' : totalShare === 100 ? 'text-success' : 'text-warning'}">${totalShare}%</strong>
+     </div>
+     ${totalShare > 100 ? '<div class="alert alert-danger py-1 small mt-1">⚠️ Total shares exceed 100%! Please correct.</div>' : ''}
+     ${totalShare < 100 ? `<div class="alert alert-info py-1 small mt-1">ℹ️ ${100-totalShare}% unallocated (goes to business/owner)</div>` : ''}`;
+  },
+
+  loadInvestorSelects() {
+    const investors = DB.getInvestors();
+    [document.getElementById('txnInvestor'), document.getElementById('ledgerFilter')].forEach((sel, i) => {
+      if (!sel) return;
+      sel.innerHTML = (i === 1 ? '<option value="">All Investors</option>' : '<option value="">-- Select --</option>') +
+        investors.map(v => `<option value="${v.id}">${APP.esc(v.name)}</option>`).join('');
+    });
+  },
+
+  renderLedger() {
+    const filter = document.getElementById('ledgerFilter')?.value || '';
+    let txns = DB.getInvestments();
+    if (filter) txns = txns.filter(t => t.investorId === filter);
+    const paged = APP.paginate(txns, this.ledgerPage, 20);
+    const tbody = document.getElementById('ledgerBody');
+    if (!tbody) return;
+    const typeConfig = {
+      investment:   { label: 'Investment',         icon: 'bi-arrow-down-circle-fill', cls: 'text-success', sign: '+' },
+      withdrawal:   { label: 'Withdrawal',          icon: 'bi-arrow-up-circle-fill',   cls: 'text-danger',  sign: '-' },
+      profit_share: { label: 'Profit Distribution', icon: 'bi-graph-up-arrow',          cls: 'text-primary', sign: '+' },
+      loan:         { label: 'Loan',                icon: 'bi-bank',                   cls: 'text-warning', sign: '+' },
+    };
+    if (!paged.data.length) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No transactions yet</td></tr>`; }
+    else {
+      tbody.innerHTML = paged.data.map(t => {
+        const cfg = typeConfig[t.type] || { label: t.type, icon: 'bi-dot', cls: '', sign: '+' };
+        return `<tr>
+          <td>${APP.fmtDate(t.date)}</td>
+          <td><strong>${APP.esc(t.investorName||'-')}</strong></td>
+          <td><i class="bi ${cfg.icon} me-1 ${cfg.cls}"></i>${cfg.label}</td>
+          <td class="text-muted small">${APP.esc(t.notes||'-')}</td>
+          <td class="text-end fw-bold ${cfg.cls}">${cfg.sign}${APP.fmt(t.amount)}</td>
+          <td>
+            <button class="btn btn-xs btn-outline-danger" style="padding:2px 6px;" onclick="INVESTORS.deleteTxn('${t.id}')"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    // Net balance
+    const netIn  = txns.filter(t => ['investment','profit_share','loan'].includes(t.type)).reduce((s,t)=>s+t.amount,0);
+    const netOut = txns.filter(t => t.type === 'withdrawal').reduce((s,t)=>s+t.amount,0);
+    document.getElementById('ledgerBalance').textContent = APP.fmt(netIn - netOut);
+    APP.renderPagination('ledgerPagination', paged.page, paged.pages, p => { this.ledgerPage = p; this.renderLedger(); });
+    document.getElementById('ledgerFilter')?.addEventListener('change', () => { this.ledgerPage=1; this.renderLedger(); });
+  },
+
+  checkShareWarning() {
+    const val = parseFloat(document.getElementById('invShare')?.value || 0);
+    const investors = DB.getInvestors();
+    const editingShare = this.editingId ? (DB.getInvestor(this.editingId)?.sharePercent||0) : 0;
+    const currentTotal = investors.reduce((s,v) => s + (v.id === this.editingId ? 0 : (v.sharePercent||0)), 0);
+    const newTotal = currentTotal + val;
+    const warn = document.getElementById('shareWarning');
+    if (!warn) return;
+    if (newTotal > 100) warn.innerHTML = `<span class="text-danger">⚠️ Total would be ${newTotal}% (exceeds 100%)</span>`;
+    else if (newTotal === 100) warn.innerHTML = `<span class="text-success">✅ Total is exactly 100%</span>`;
+    else warn.innerHTML = `<span class="text-muted">${100-newTotal}% remaining unallocated</span>`;
+  },
+
+  bindEvents() {
+    document.getElementById('saveInvestorBtn')?.addEventListener('click', () => this.saveInvestor());
+    document.getElementById('saveTxnBtn')?.addEventListener('click', () => this.saveTxn());
+  },
+
+  openInvestorModal(id = null) {
+    this.editingId = id;
+    const inv = id ? DB.getInvestor(id) : null;
+    document.getElementById('investorModalTitle').textContent = id ? 'Edit Investor' : 'Add Investor / Partner';
+    document.getElementById('invName').value   = inv?.name || '';
+    document.getElementById('invMobile').value = inv?.mobile || '';
+    document.getElementById('invEmail').value  = inv?.email || '';
+    document.getElementById('invShare').value  = inv?.sharePercent || '';
+    document.getElementById('invJoinDate').value = inv?.joinDate || new Date().toISOString().split('T')[0];
+    document.getElementById('invNotes').value  = inv?.notes || '';
+    document.getElementById('shareWarning').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('investorModal')).show();
+  },
+
+  saveInvestor() {
+    const name = document.getElementById('invName')?.value.trim();
+    if (!name) { APP.showToast('Name is required', 'warning'); return; }
+    const share = parseFloat(document.getElementById('invShare')?.value || 0);
+    const others = DB.getInvestors().reduce((s,v) => s + (v.id === this.editingId ? 0 : (v.sharePercent||0)), 0);
+    if (others + share > 100.01) { APP.showToast(`Total shares would be ${(others+share).toFixed(1)}% — exceeds 100%`, 'warning'); return; }
+
+    const data = { name, mobile: document.getElementById('invMobile')?.value||'',
+      email: document.getElementById('invEmail')?.value||'',
+      sharePercent: share,
+      joinDate: document.getElementById('invJoinDate')?.value||'',
+      notes: document.getElementById('invNotes')?.value.trim()||'' };
+
+    if (this.editingId) DB.updateInvestor(this.editingId, data);
+    else DB.addInvestor(data);
+
+    bootstrap.Modal.getInstance(document.getElementById('investorModal'))?.hide();
+    APP.showToast('Investor saved!', 'success');
+    this.renderAll();
+  },
+
+  deleteInvestor(id) {
+    const inv = DB.getInvestor(id);
+    const txns = DB.getInvestmentsForInvestor(id).length;
+    const msg = txns > 0
+      ? `Delete "${inv?.name}"? This will also remove their ${txns} transaction(s). This cannot be undone.`
+      : `Delete investor "${inv?.name}"?`;
+    APP.showConfirm(msg, () => {
+      DB.deleteInvestor(id);
+      APP.showToast('Investor deleted', 'info');
+      this.renderAll();
+    });
+  },
+
+  saveTxn() {
+    const investorId = document.getElementById('txnInvestor')?.value;
+    if (!investorId) { APP.showToast('Select an investor', 'warning'); return; }
+    const amount = parseFloat(document.getElementById('txnAmount')?.value || 0);
+    if (amount <= 0) { APP.showToast('Amount must be greater than 0', 'warning'); return; }
+    const investor = DB.getInvestor(investorId);
+    DB.addInvestment({
+      investorId, investorName: investor?.name||'',
+      type: document.getElementById('txnType')?.value || 'investment',
+      amount, date: document.getElementById('txnDate')?.value,
+      notes: document.getElementById('txnNotes')?.value.trim()||'',
+    });
+    APP.showToast('Transaction recorded!', 'success');
+    APP.updateSyncStatus();
+    document.getElementById('txnAmount').value = '';
+    document.getElementById('txnNotes').value = '';
+    this.renderAll();
+  },
+
+  deleteTxn(id) {
+    APP.showConfirm('Delete this transaction?', () => {
+      DB.deleteInvestment(id);
+      APP.showToast('Transaction deleted', 'info');
+      this.renderLedger();
+      this.renderCards();
+    });
+  },
+
+  exportLedger() {
+    const data = DB.getInvestments().map(t => ({
+      date: t.date, investor: t.investorName, type: t.type,
+      amount: t.amount, notes: t.notes, createdAt: t.createdAt
+    }));
+    APP.exportCSV(data, 'investor-ledger.csv');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Auth guard + user badge
+    if (!AUTH.guard('investors')) return;
+    AUTH.renderUserBadge();
+    AUTH.applyRestrictions();
+
+  document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  });
+  document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  });
+  INVESTORS.init();
+});
+</script>
+</body>
+</html>
